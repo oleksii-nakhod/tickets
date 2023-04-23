@@ -6,10 +6,10 @@ from connection import *
 from database import *
 import stripe
 stripe.api_key = os.getenv('STRIPE_API_KEY')
-
+endpoint_secret = os.getenv('STRIPE_ENDPOINT_KEY')
 load_dotenv()
 
-server_url = f"{os.getenv('SCHEME')}{os.getenv('HOST')}:{os.getenv('SERVER_PORT')}"
+public_url = f"{os.getenv('DOMAIN')}"
 
 cnxpool_config = {
     "host": f"{os.getenv('HOST')}",
@@ -243,8 +243,8 @@ def order():
         product=product.id,
         ))
     checkout_session = stripe.checkout.Session.create(
-        success_url=f"{server_url}/",
-        cancel_url=f"{server_url}/seats?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
+        success_url=f"{public_url}/",
+        cancel_url=f"{public_url}/seats?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
         line_items=[
             {
                 "price": price.id,
@@ -256,6 +256,25 @@ def order():
     print(checkout_session)
     return {'url': checkout_session.url}
 
+@app.route("/payment-completed", methods=['POST'])
+def payment_completed():
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+    print(payload)
+    print(sig_header)
+    event = None
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except ValueError as e:
+        # Invalid payload
+        return {'msg': 'Invalid payload'}, 400
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return {'msg': 'This request didn\'t come from Stripe'}, 400
+
+    # Passed signature verification
+    return {'msg': 'success'}, 200
+    
 @app.errorhandler(404)
 def handle_404(e):
     return redirect(url_for('index'))
@@ -263,3 +282,6 @@ def handle_404(e):
 @app.errorhandler(500)
 def handle_500(e):
     return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    app.run(host="localhost", port=5000, threaded=True, debug=True)
