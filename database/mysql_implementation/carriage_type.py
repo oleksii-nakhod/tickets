@@ -1,10 +1,11 @@
-from database.interface.user_role import *
-from database.entity.user_role import UserRole
+from database.interface.carriage_type import ICarriageType
+from database.entity.carriage_type import CarriageType
 
-class MysqlUserRole(IUserRole):
+
+class MysqlCarriageType(ICarriageType):
     def __init__(self, cnxpool):
         self.cnxpool = cnxpool
-        self.tname = 'user_role'
+        self.tname = 'carriage_type'
 
     def read_all(self):
         result = None
@@ -13,7 +14,7 @@ class MysqlUserRole(IUserRole):
             self.cnx = self.cnxpool.get_connection()
             self.cur = self.cnx.cursor()
             self.cur.execute(query)
-            result = [UserRole(*args) for args in self.cur.fetchall()]
+            result = [CarriageType(*args) for args in self.cur.fetchall()]
             self.cnx.close()
         except Exception as e:
             print(e)
@@ -26,8 +27,10 @@ class MysqlUserRole(IUserRole):
             self.cnx = self.cnxpool.get_connection()
             self.cur = self.cnx.cursor()
             self.cur.execute(query)
-            result = UserRole(*self.cur.fetchone())
+            result = CarriageType(*self.cur.fetchone())
             self.cnx.close()
         except Exception as e:
             print(e)
         return result
+
+    

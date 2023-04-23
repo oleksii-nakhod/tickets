@@ -1,5 +1,6 @@
 from database.interface.user import IUser
 from database.entity.user import User
+import bcrypt
 
 class MysqlUser(IUser):
     def __init__(self, cnxpool):
@@ -32,9 +33,12 @@ class MysqlUser(IUser):
             print(e)
         return result
 
-    def create(self, user):
+    def create(self, user, password):
         result = None
-        vals = (user.name, user.email, user.password_hash, user.user_role_id)
+        salt = bcrypt.gensalt()
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
+        vals = (user.name, user.email, password_hash, user.user_role_id)
+        print(vals)
         query = f"INSERT INTO {self.tname} ( \
                     name, \
                     email, \
@@ -61,9 +65,16 @@ class MysqlUser(IUser):
     def update(self, id, fields):
         vals = []
         for key in fields:
-            vals.append(f"{key} = '{fields[key]}'")
+            if key == 'password':
+                password = fields[key]
+                salt = bcrypt.gensalt()
+                password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
+                vals.append(f"password_hash = '{password_hash.decode('utf-8')}'")
+            else:
+                vals.append(f"{key} = '{fields[key]}'")
         vals = ', '.join(vals)
         query = f"UPDATE {self.tname} SET {vals} WHERE id={id};"
+        print(query)
         try:
             self.cnx = self.cnxpool.get_connection()
             self.cur = self.cnx.cursor()
@@ -83,3 +94,23 @@ class MysqlUser(IUser):
             self.cnx.close()
         except Exception as e:
             print(e)
+            
+    def find(self, email, password=None):
+        result = []
+        query = f"SELECT * FROM {self.tname} WHERE email='{email}';"
+        try:
+            self.cnx = self.cnxpool.get_connection()
+            self.cur = self.cnx.cursor()
+            self.cur.execute(query)
+            temp = self.cur.fetchone()
+            if temp:
+                user = User(*temp)
+            else:
+                return result
+            self.cnx.close()
+            if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
+                result = user
+
+        except Exception as e:
+            print(e)
+        return result

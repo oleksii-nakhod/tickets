@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container-fluid" id="home-content">
+    <h1>Search train tickets online</h1>
+    <form autocomplete="off" onsubmit="return validateTicketForm()" action="/search" name="formTickets">
+        <div class="row">
+            <div class="col form-floating">
+                <input type="text" class="form-control" id="from" placeholder="Enter departure city">
+                <label for="from">From</label>
+            </div>
+            <input type="hidden" class="form-control" id="fromHidden" name="from">
+            <div class="col form-floating">
+                <input type="text" class="form-control" id="to" placeholder="Enter destination city">
+                <label for="to">To</label>
+            </div>
+            <input type="hidden" class="form-control" id="toHidden" name="to">
+            <div class="col form-floating">
+                <input type="date" class="form-control" id="depart" name="depart" placeholder="Depart">
+                <label for="depart">Depart</label>
+            </div>
+            <button type="submit" class="btn btn-primary col-12 col-md-3" id="btn-search-trains">Search</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

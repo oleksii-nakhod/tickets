@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
-from connection.cnxpool_factory import ConnectionPoolList
-from database.dao_factory import DatabaseList
-from database.entity.user import User
+from database import *
+from connection import *
+
 
 load_dotenv()
 

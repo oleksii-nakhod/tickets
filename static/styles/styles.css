@@ -1,0 +1,80 @@
+* {
+    font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
+    font-weight: 400;
+}
+
+.navbar-nav > li {
+    padding-right: 20px;
+}
+
+.navbar {
+    padding: 0;
+}
+
+img {
+    height: auto;
+    width: 100%;
+}
+
+#logo {
+    height: 48px;
+    width: auto;
+    margin: 0px 5px 5px 0px;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.container-fluid {
+    padding-left: 10vw;
+    padding-right: 10vw;
+}
+
+.navbar-brand {
+    font-size: 24px;
+}
+
+form {
+    margin: 20px 0
+}
+
+a {
+    color: black;
+}
+
+.btn, .btn-primary {
+    font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
+}
+
+#profile-content {
+    max-width: 970px;
+}
+
+.container-fluid {
+    max-width: 1500px;
+}
+
+.card {
+    box-shadow: 0 0 5px rgb(0 0 0 / 0.2);
+    margin: 10px 0
+}
+
+.bold {
+    font-size: large;
+    font-weight: bold;
+}
+
+.col {
+    padding: 0
+}
+
+#back-arrow {
+    height: 16px;
+    width: auto;
+}
+
+#spinner-pay {
+    margin: 0 10px 0 0
+}

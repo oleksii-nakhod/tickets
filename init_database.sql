@@ -61,7 +61,7 @@ CREATE TABLE trip_station (
 CREATE TABLE carriage_type (
     id INT AUTO_INCREMENT,
     name VARCHAR(50),
-    price_mod FLOAT,
+    price_mod INT,
     PRIMARY KEY (id)
 );
 
@@ -131,9 +131,15 @@ INSERT INTO user (
     user_role_id
 )
 VALUES (
+    'admin',
+    'admin@admin.com',
+    '$2a$12$1VrvxyQGSU0dPyCvYP1R2.ES5odC9BcRdrcUYMY.U6Axt.TJre.sa',
+    (SELECT id FROM user_role WHERE name = 'admin')
+),
+(
     'Oleksii',
     'alexey.nakhod@gmail.com',
-    '$2y$10$1FVZyP50I7YrEcEcpnAvPOWnIwHXyAsvw3THYhmsEsXKkWOnYHAGa',
+    '$2a$12$V1vo5iRM33tdkeRw4scmbuGeq1Sl4W8ugGNn9xkhnELjKN2GLcZUK',
     (SELECT id FROM user_role WHERE name = 'client')
 );
 
@@ -141,7 +147,13 @@ INSERT INTO train (
     name
 )
 VALUES (
-    '749 K'
+    '100T'
+),
+(
+    '200T'
+),
+(
+    '300T'
 );
 
 INSERT INTO carriage_type (
@@ -149,8 +161,16 @@ INSERT INTO carriage_type (
     price_mod
 )
 VALUES (
-    'C1',
-    1.0
+    '1st class',
+    3
+),
+(
+    '2nd class',
+    2
+),
+(
+    '3rd class',
+    1
 );
 
 INSERT INTO carriage (
@@ -159,9 +179,34 @@ INSERT INTO carriage (
     carriage_type_id
 )
 VALUES (
-    7,
-    (SELECT id FROM train WHERE name = '749 K'),
-    (SELECT id FROM carriage_type WHERE name = 'C1')
+    1,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '1st class')
+),
+(
+    2,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '1st class')
+),
+(
+    3,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '2nd class')
+),
+(
+    4,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '2nd class')
+),
+(
+    5,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '3rd class')
+),
+(
+    6,
+    (SELECT id FROM train WHERE name = '100T'),
+    (SELECT id FROM carriage_type WHERE name = '3rd class')
 );
 
 INSERT INTO seat (
@@ -169,8 +214,36 @@ INSERT INTO seat (
     carriage_id
 )
 VALUES (
-    20,
-    (SELECT id FROM carriage WHERE num = 7)
+    1,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 1)
+),
+(
+    2,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 1)
+),
+(
+    3,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 1)
+),
+(
+    4,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 1)
+),
+(
+    2,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 2)
+),
+(
+    1,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 3)
+),
+(
+    3,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 3)
+),
+(
+    4,
+    (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 3)
 );
 
 
@@ -179,20 +252,35 @@ INSERT INTO station (
     name
 )
 VALUES (
-    'A'
+    'Kyiv'
 ),
 (
-    'B'
+    'Lviv'
 ),
 (
-    'C'
+    'Dnipro'
+),
+(
+    'Kharkiv'
+),
+(
+    'Zaporizhzhia'
+),
+(
+    'Mykolaiv'
+),
+(
+    'Odesa'
 );
 
 INSERT INTO trip (
     train_id
 )
 VALUES (
-    (SELECT id FROM train WHERE name = '749 K')
+    (SELECT id FROM train WHERE name = '100T')
+),
+(
+    (SELECT id FROM train WHERE name = '200T')
 );
 
 INSERT INTO trip_station (
@@ -204,31 +292,42 @@ INSERT INTO trip_station (
     price
 )
 VALUES (
-    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '749 K')),
+    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '100T')),
     1,
-    (SELECT id FROM station WHERE name = 'A'),
-    '2023-03-27 13:00:00',
+    (SELECT id FROM station WHERE name = 'Kyiv'),
+    '2023-03-27 12:30:00',
     '2023-03-27 13:00:00',
     0
 ),
 (
-    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '749 K')),
+    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '100T')),
     2,
-    (SELECT id FROM station WHERE name = 'C'),
-    '2023-03-27 13:00:00',
+    (SELECT id FROM station WHERE name = 'Dnipro'),
+    '2023-03-27 16:00:00',
+    '2023-03-27 16:30:00',
+    40000
+),
+(
+    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '100T')),
+    3,
+    (SELECT id FROM station WHERE name = 'Kharkiv'),
     '2023-03-27 19:00:00',
-    400
-);
-
-INSERT INTO ticket (
-    user_id,
-    seat_id,
-    trip_station_start_id,
-    trip_station_end_id
-)
-VALUES (
-    (SELECT id FROM user WHERE email = 'alexey.nakhod@gmail.com'),
-    (SELECT id FROM seat WHERE num = 20),
-    (SELECT id FROM trip_station WHERE price = 0),
-    (SELECT id FROM trip_station WHERE price = 400)
+    '2023-03-27 19:00:00',
+    70000
+),
+(
+    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '200T')),
+    1,
+    (SELECT id FROM station WHERE name = 'Kyiv'),
+    '2023-03-27 19:00:00',
+    '2023-03-27 19:30:00',
+    0
+),
+(
+    (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '200T')),
+    2,
+    (SELECT id FROM station WHERE name = 'Dnipro'),
+    '2023-03-27 21:35:00',
+    '2023-03-27 21:35:00',
+    30000
 );

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container-fluid" id="seats-content">
+    <h1>{{ data['station_start_name'] }} - {{ data['station_end_name'] }}</h1>
+    <h2>{{ data['depart_date_pretty'] }}, {{ data['time_dep_pretty'] }} - {{ data['time_arr_pretty'] }}</h2>
+    <h3>Train {{ data['train_name'] }}</h3>
+    <a href="../search?from={{ data['station_start_id'] }}&to={{ data['station_end_id'] }}&depart={{ data['depart_date'] }}" class="icon-link">
+        <img src="{{ url_for('static',filename='resources/back.png') }}" alt="" id="back-arrow">
+        Select another train
+    </a>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-4">
+                    <h4>
+                        {{ data['carriage_type_name'] }}
+                    </h4>
+                </div>
+                <div class="col-8 justify-content-end d-flex">
+                    <h4>
+                        ₴ {{'%0.2f'| format(data['price']/100|float)}} / ticket
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="btn-group" role="group" id="radio-carriage">
+            {% for carriage in data['carriages'] %}
+            <input type="radio" class="btn-check radio-carriage" name="radio-carriage" id="carriage-{{ carriage['id'] }}" autocomplete="off" {{ "checked" if loop.index == 1 }}>
+            <label class="btn btn-outline-primary" for="carriage-{{ carriage['id'] }}">
+                {{ carriage['id'] }} car
+                <hr>
+                {{ carriage['seats']|length }} {{ "seat" if carriage['seats']|length == 1 else "seats"}}
+            </label>
+            {% endfor %}
+            </div>
+            <hr>
+            <h5 class="card-title">Choose a seat</h5>
+            {% for carriage in data['carriages'] %}
+            <div class="btn-group carriage-seats carriage-{{ carriage['id'] }}" role="group" id="seats-{{ carriage['id'] }}" style="{{ 'display:none' if loop.index != 1 }}">
+                {% for seat in carriage['seats'] %}
+                <input type="checkbox" class="btn-check checkbox-seat" data-seat-id="{{ seat['id'] }}" data-seat-price="{{ data['price'] }}" data-bs-toggle="collapse" data-bs-target="#ticket-{{ carriage['id'] }}-{{ seat['id'] }}" name="carriage-{{ carriage['id'] }}" id="seat-{{ carriage['id'] }}-{{ seat['id'] }}" autocomplete="off">
+                <label class="btn btn-outline-primary" for="seat-{{ carriage['id'] }}-{{ seat['id'] }}">{{ seat['num'] }}</label>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <hr class="collapse" id="hr-seat-ticket">
+            {% for carriage in data['carriages'] %}
+            {% for seat in carriage['seats'] %}
+            <div class="row collapse g-0 ticket" id="ticket-{{ carriage['id'] }}-{{ seat['id'] }}">
+            <div class="col">
+                Train {{ data['train_name'] }}, Car {{ carriage['id'] }}, Seat {{ seat['num'] }}
+            </div>
+            <div class="col d-flex justify-content-end bold ticket-price">
+                ₴ {{'%0.2f'| format(data['price']/100|float)}}
+            </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+            <hr class="collapse" id="hr-ticket-total">
+            <div class="row collapse g-0 ticket" id="total-price-row">
+            <div class="col d-flex justify-content-end bold" id="total-price">
+                Total: ₴ 0
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end">
+        <div class="spinner-border text-primary collapse" role="status" id="spinner-pay">
+        </div>
+        <button type="submit" class="btn btn-primary col-6 col-md-3 collapse" id="btn-pay" data-trip-id="{{ data['trip_id'] }}" data-station-start="{{ data['station_start_id'] }}" data-station-end="{{ data['station_end_id'] }}">Pay</button>
+    </div>
+    </div>
+</main>
+{% endblock %}

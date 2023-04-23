@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container-fluid" id="profile-content">
+    <h1>Profile</h1>
+    <h2>Customer details</h2>
+    <form autocomplete="off" name="form-profile" id="form-profile">
+        <div class="row">
+            <div class="form-group col-12">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your new name" value="{{session['name']}}">
+            </div>
+            <button type="submit" class="btn btn-primary col-12 col-sm-6 col-md-3 ms-auto" id="btn-update-profile">Save</button>
+        </div>
+    </form>
+    <h2>Change password</h2>
+    <form autocomplete="off" onsubmit="return validateChangePasswordForm()" name="form-changepassword" id="form-changepassword">
+        <div class="row">
+            <div class="form-group col-12 col-md-4">
+                <label for="password-new">New password</label>
+                <input type="password" class="form-control" id="password-new" name="password-new" placeholder="Enter your new password">
+            </div>
+            <div class="form-group col-12 col-md-4">
+                <label for="password-confirm">Confirm password</label>
+                <input type="password" class="form-control" id="password-confirm" placeholder="Confirm your new password">
+            </div>
+            <div class="form-group col-12 col-md-4">
+                <label for="password-old">Old password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your old password">
+            </div>
+            <div class="alert alert-warning collapse" id="message-changepassword-error">
+                Error
+            </div>
+            <button type="submit" class="btn btn-primary col-12 col-sm-6 col-md-3 ms-auto" id="btn-change-password">Save</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

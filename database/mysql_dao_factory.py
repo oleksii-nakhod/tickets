@@ -1,14 +1,20 @@
-from database.mysql_implementation.user import *
-from database.mysql_implementation.user_role import *
-from database.mysql_implementation.ticket import *
+from database.mysql_implementation import *
 
 class MysqlTableList():
     def __init__(self, cnxpool):
         self.cnxpool = cnxpool
         self.table_list = {
+            'carriage': MysqlCarriage,
+            'carriage_type': MysqlCarriageType,
+            'seat': MysqlSeat,
+            'station': MysqlStation,
+            'ticket': MysqlTicket,
+            'train': MysqlTrain,
+            'trip': MysqlTrip,
+            'trip_station': MysqlTripStation,
             'user': MysqlUser,
             'user_role': MysqlUserRole,
-            'ticket': MysqlTicket
+            
         }
     
     def get_table(self, table_type):
