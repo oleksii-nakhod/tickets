@@ -35,14 +35,16 @@ class MysqlTicket(ITicket):
 
     def create(self, ticket):
         result = None
-        vals = (ticket.user_id, ticket.seat_id, ticket.trip_station_start_id, ticket.trip_station_end_id)
+        vals = (ticket.user_id, ticket.seat_id, ticket.trip_station_start_id, ticket.trip_station_end_id, ticket.token)
         query = f"INSERT INTO {self.tname} ( \
                     user_id, \
                     seat_id, \
                     trip_station_start_id, \
-                    trip_station_end_id \
+                    trip_station_end_id, \
+                    token \
                 ) \
                 VALUES ( \
+                    %s, \
                     %s, \
                     %s, \
                     %s, \
@@ -67,6 +69,21 @@ class MysqlTicket(ITicket):
             self.cur = self.cnx.cursor()
             self.cur.execute(query)
             result = [Ticket(*args) for args in self.cur.fetchall()]
+            print(result)
+            self.cnx.close()
+        except Exception as e:
+            print(e)
+        return result
+    
+    def verify(self, id, token):
+        result = None
+        query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = {token}"
+        try:
+            self.cnx = self.cnxpool.get_connection()
+            self.cur = self.cnx.cursor()
+            self.cur.execute(query)
+            print(query)
+            result = Ticket(*self.cur.fetchone())
             print(result)
             self.cnx.close()
         except Exception as e:

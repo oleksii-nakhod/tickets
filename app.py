@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import os
 import datetime
+import string
+import random
 from dotenv import load_dotenv
 from connection import *
 from database import *
@@ -300,7 +302,8 @@ def payment_completed():
             user_id=metadata['user_id'],
             seat_id=metadata['seat_id'],
             trip_station_start_id=metadata['station_start_id'],
-            trip_station_end_id=metadata['station_end_id']
+            trip_station_end_id=metadata['station_end_id'],
+            token=''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         ))
     return {'msg': 'success'}, 200
 
@@ -313,11 +316,25 @@ def orders():
         'id': ticket.id,
         'seat_id': ticket.seat_id,
         'station_start_id': ticket.trip_station_start_id,
-        'station_end_id': ticket.trip_station_end_id
+        'station_end_id': ticket.trip_station_end_id,
+        'token': ticket.token
     } for ticket in tickets]}
     print(data)
     return render_template('orders.html', data=data)
-    
+
+@app.route("/verify", methods=['GET'])
+def verify():
+    id = request.args.get('id')
+    token = request.args.get('token')
+    ticket = ticket_table.verify(id, token)
+    if not ticket:
+        return {'status': 'invalid'}
+    return {'status': 'valid',
+            'info': {
+                'id': ticket.id,
+                'token': ticket.token
+            }}
+
 @app.errorhandler(404)
 def handle_404(e):
     return redirect(url_for('index'))

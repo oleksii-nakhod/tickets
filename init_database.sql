@@ -95,6 +95,7 @@ CREATE TABLE ticket (
     seat_id INT,
     trip_station_start_id INT,
     trip_station_end_id INT,
+    token VARCHAR(50),
     PRIMARY KEY (id),
     FOREIGN KEY (user_id)
         REFERENCES user(id)
