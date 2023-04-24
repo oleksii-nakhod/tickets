@@ -1,5 +1,5 @@
 class Ticket():
-    def __init__(self, id, user_id, seat_id, trip_station_start_id, trip_station_end_id):
+    def __init__(self=None, id=None, user_id=None, seat_id=None, trip_station_start_id=None, trip_station_end_id=None):
         self.id = id
         self.user_id = user_id
         self.seat_id = seat_id

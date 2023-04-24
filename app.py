@@ -79,6 +79,7 @@ def signup():
             session['id'] = user_id
             session['email'] = request.json['email']
             session['name'] = request.json['name']
+            session['user_role_id'] = 2
             return {'msg': 'success'}, 200
     except Exception as e:
         print(e)
@@ -94,6 +95,7 @@ def login():
             session['id'] = user.id
             session['email'] = user.email
             session['name'] = user.name
+            session['user_role_id'] = user.user_role_id
             return {'msg': 'Success'}, 200
         else:
             return {'msg': 'Incorrect email/password'}, 401
@@ -106,12 +108,6 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('index'))
-
-
-@app.route("/orders", methods=['GET'])
-def orders():
-    return redirect(url_for('index'))
-
 
 @app.route("/profile", methods=['GET', 'PATCH'])
 def profile():
@@ -139,6 +135,20 @@ def profile():
             print(e)
         return {'msg': 'Server Error'}, 500
 
+@app.route("/admin", methods=['GET'])
+def admin():
+    if not 'logged_in' in session or not session['logged_in'] or not session['user_role_id'] == 1:
+        return redirect(url_for('index'))
+    users = user_table.read_all()
+    data = {'users': [{
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'user_role_id': user.user_role_id
+    } for user in users]}
+    print(data)
+    return render_template("admin.html", data=data)
+    
 @app.route("/search", methods=['GET'])
 def search():
     from_station = request.args.get('from')
@@ -221,37 +231,41 @@ def seats():
 
 @app.route("/order", methods=['POST'])
 def order():
+    user_id = session['id']
     station_start = station_table.read(request.json['station_start_id'])
     station_end = station_table.read(request.json['station_end_id'])
     trip = trip_table.read(request.json['trip_id'])
     train = train_table.read(trip.train_id)
     trip_extra_info = trip_station_table.find(
         trip.id, request.json['station_start_id'], request.json['station_end_id'])
-    prices = []
+    line_items = []
     for seat_id in request.json['seats']:
         seat = seat_table.read(seat_id)
         carriage = carriage_table.read(seat.carriage_id)
         carriage_type = carriage_type_table.read(carriage.carriage_type_id)
         train = train_table.read(carriage.train_id)
         name = f"{station_start.name} - {station_end.name}, Train {train.name}, Carriage {carriage.num}, Seat: {seat.num}"
-        product = stripe.Product.create(
-        name=name)
-        
-        prices.append(stripe.Price.create(
-        unit_amount=trip_extra_info[2]*carriage_type.price_mod,
-        currency="uah",
-        product=product.id,
-        ))
+        line_items.append({
+            'price_data': {
+                'currency': 'uah',
+                'unit_amount': trip_extra_info[2]*carriage_type.price_mod,
+                'product_data': {
+                    'name': name,
+                    'metadata': {
+                        'user_id': user_id,
+                        'seat_id': seat.id,
+                        'station_start_id': station_start.id,
+                        'station_end_id': station_end.id
+                    }
+                },
+            },
+            'quantity': 1
+        })
     checkout_session = stripe.checkout.Session.create(
         success_url=f"{public_url}/",
         cancel_url=f"{public_url}/seats?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
-        line_items=[
-            {
-                "price": price.id,
-                "quantity": 1,
-            } for price in prices
-        ],
-        mode="payment"
+        line_items=line_items,
+        mode='payment'
     )
     print(checkout_session)
     return {'url': checkout_session.url}
@@ -273,7 +287,36 @@ def payment_completed():
         return {'msg': 'This request didn\'t come from Stripe'}, 400
 
     # Passed signature verification
+    checkout_session = stripe.checkout.Session.retrieve(
+        request.json['data']['object']['id'],
+        expand=['line_items']
+    )
+    for item in checkout_session['line_items']['data']:
+        product = stripe.Product.retrieve(
+            item['price']['product']
+        )
+        metadata = product['metadata']
+        ticket_table.create(Ticket(
+            user_id=metadata['user_id'],
+            seat_id=metadata['seat_id'],
+            trip_station_start_id=metadata['station_start_id'],
+            trip_station_end_id=metadata['station_end_id']
+        ))
     return {'msg': 'success'}, 200
+
+@app.route("/orders", methods=['GET'])
+def orders():
+    if not 'logged_in' in session or not session['logged_in']:
+        return redirect(url_for('index'))
+    tickets = ticket_table.find(session['id'])
+    data = {'tickets': [{
+        'id': ticket.id,
+        'seat_id': ticket.seat_id,
+        'station_start_id': ticket.trip_station_start_id,
+        'station_end_id': ticket.trip_station_end_id
+    } for ticket in tickets]}
+    print(data)
+    return render_template('orders.html', data=data)
     
 @app.errorhandler(404)
 def handle_404(e):

@@ -59,28 +59,16 @@ class MysqlTicket(ITicket):
             print(e)
         return result
 
-    def update(self, id, fields):
-        vals = []
-        for key in fields:
-            vals.append(f"{key} = '{fields[key]}'")
-        vals = ', '.join(vals)
-        query = f"UPDATE {self.tname} SET {vals} WHERE id={id};"
+    def find(self, user_id):
+        result = None
+        query = f"SELECT * FROM {self.tname} WHERE user_id = {user_id}"
         try:
             self.cnx = self.cnxpool.get_connection()
             self.cur = self.cnx.cursor()
             self.cur.execute(query)
-            self.cnx.commit()
+            result = [Ticket(*args) for args in self.cur.fetchall()]
+            print(result)
             self.cnx.close()
         except Exception as e:
             print(e)
-
-    def delete(self, id):
-        query = f"DELETE FROM {self.tname} WHERE id={id}"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            self.cnx.commit()
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        return result
