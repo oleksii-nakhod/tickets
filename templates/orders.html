@@ -9,6 +9,7 @@
       <th scope="col">Seat ID</th>
       <th scope="col">Station Start</th>
       <th scope="col">Station End</th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
@@ -18,9 +19,20 @@
       <td>{{ ticket['seat_id'] }}</td>
       <td>{{ ticket['station_start_id'] }}</td>
       <td>{{ ticket['station_end_id'] }}</td>
+      <td><a data-ticket-id="{{ ticket['id'] }}" href="#" class="btn-modal-qrcode" data-bs-toggle="modal" data-bs-target="#modal-qrcode"><img src="{{ url_for('static',filename='resources/qrcode.png') }}" class="navbar-brand" id="logo"></img></a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+    <div class="modal fade" id="modal-qrcode" tabindex="-1" aria-labelledby="modal-signup-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-body">
+                <img src="{{ url_for('static',filename='resources/qrcode.png') }}" id="img-qrcode" alt="">
+            </div>
+            </div>
+        </div>
+    </div>
 </main>
 {% endblock %}

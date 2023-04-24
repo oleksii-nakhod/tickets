@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_file, after_this_request
 import os
 import datetime
 import string
@@ -6,6 +6,8 @@ import random
 from dotenv import load_dotenv
 from connection import *
 from database import *
+import qrcode
+import base64
 import stripe
 stripe.api_key = os.getenv('STRIPE_API_KEY')
 endpoint_secret = os.getenv('STRIPE_ENDPOINT_KEY')
@@ -330,11 +332,33 @@ def verify():
     if not ticket:
         return {'status': 'invalid'}
     return {'status': 'valid',
-            'info': {
-                'id': ticket.id,
-                'token': ticket.token
+            'data': {
+                'user_id': ticket.user_id,
+                'seat_id': ticket.seat_id,
+                'id': ticket.id
             }}
 
+@app.route("/qrcode", methods=['GET'])
+def generate_qrcode():
+    if not 'logged_in' in session or not session['logged_in']:
+        return redirect(url_for('index'))
+    ticket_id = request.args.get('ticket-id')
+    ticket = ticket_table.read(ticket_id)
+    if ticket.user_id != session['id']:
+        return redirect(url_for('index'))
+    img = qrcode.make(f"{public_url}{url_for('verify')}?id={ticket_id}&token={ticket.token}")
+    img_path = f'qrcode-{ticket_id}.png'
+    img.save(img_path)
+    response = send_file(img_path, mimetype='image/png')
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(img_path)
+        except Exception as e:
+            print(e)
+        return response
+    return response
+    
 @app.errorhandler(404)
 def handle_404(e):
     return redirect(url_for('index'))

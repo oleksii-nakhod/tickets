@@ -77,7 +77,7 @@ class MysqlTicket(ITicket):
     
     def verify(self, id, token):
         result = None
-        query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = {token}"
+        query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = '{token}'"
         try:
             self.cnx = self.cnxpool.get_connection()
             self.cur = self.cnx.cursor()

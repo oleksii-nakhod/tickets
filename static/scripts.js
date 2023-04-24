@@ -230,3 +230,12 @@ $('#btn-pay').on('click', ()=>{
         contentType: 'application/json'
     });
 })
+
+$('.btn-modal-qrcode').on('click', function() {
+    fetch(`${url_qrcode}?ticket-id=${this.dataset.ticketId}`)
+        .then(res=>res.blob())
+        .then(blob=>{
+            img = URL.createObjectURL(blob)
+            $('#img-qrcode').attr('src', img)
+        })
+})
