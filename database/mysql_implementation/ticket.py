@@ -1,6 +1,6 @@
 from database.interface.ticket import ITicket
 from database.entity.ticket import Ticket
-
+from database.mysql_implementation.cursor import *
 
 class MysqlTicket(ITicket):
     def __init__(self, cnxpool):
@@ -10,32 +10,22 @@ class MysqlTicket(ITicket):
     def read_all(self):
         result = None
         query = f"SELECT * FROM {self.tname};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = [Ticket(*args) for args in self.cur.fetchall()]
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = [Ticket(*args) for args in cursor.fetchall()]
+        
         return result
 
     def read(self, id):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = Ticket(*self.cur.fetchone())
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = Ticket(*cursor.fetchone())
         return result
 
     def create(self, ticket):
         result = None
         vals = (ticket.user_id, ticket.seat_id, ticket.trip_station_start_id, ticket.trip_station_end_id, ticket.token)
+        print(vals)
         query = f"INSERT INTO {self.tname} ( \
                     user_id, \
                     seat_id, \
@@ -50,42 +40,20 @@ class MysqlTicket(ITicket):
                     %s, \
                     %s \
                 )"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query, vals)
-            self.cnx.commit()
-            result = self.cur.lastrowid
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query, vals) as cursor:
+            result = cursor.lastrowid
         return result
 
     def find(self, user_id):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE user_id = {user_id}"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = [Ticket(*args) for args in self.cur.fetchall()]
-            print(result)
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = [Ticket(*args) for args in cursor.fetchall()]
         return result
     
     def verify(self, id, token):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = '{token}'"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            print(query)
-            result = Ticket(*self.cur.fetchone())
-            print(result)
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = Ticket(*cursor.fetchone())
         return result

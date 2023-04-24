@@ -124,14 +124,13 @@ def profile():
         if not 'logged_in' in session or not session['logged_in']:
             return {'msg': 'Please log in to change your information'}, 401
         try:
-            print(request.json)
             if 'password' in request.json['fields']:
                 user = user_table.find(session['email'], request.json['password'])
                 if not user:
                     return {'msg': 'Incorrect password'}, 401
-                    
             user_table.update(session['id'], request.json['fields'])
             user = user_table.read(session['id'])
+            print(request.json['fields'])
             session['name'] = user.name
             session['email'] = user.email
             return {'msg': 'Success'}, 200
@@ -150,7 +149,6 @@ def admin():
         'email': user.email,
         'user_role_id': user.user_role_id
     } for user in users]}
-    print(data)
     return render_template("admin.html", data=data)
     
 @app.route("/search", methods=['GET'])
@@ -194,7 +192,6 @@ def search():
     data['station_end_name'] = station_end.name
     data['station_end_id'] = station_end.id
     data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
-    print(data)
     return render_template('search.html', data=data)
 
 
@@ -229,7 +226,6 @@ def seats():
         'time_arr_pretty': trip_extra_info[1].strftime('%H:%M')
     }
 
-    print(data)
     return render_template('seats.html', data=data)
 
 
@@ -243,6 +239,7 @@ def order():
     trip_extra_info = trip_station_table.find(
         trip.id, request.json['station_start_id'], request.json['station_end_id'])
     line_items = []
+    print(request.json)
     for seat_id in request.json['seats']:
         seat = seat_table.read(seat_id)
         carriage = carriage_table.read(seat.carriage_id)
@@ -266,8 +263,8 @@ def order():
             'quantity': 1
         })
     checkout_session = stripe.checkout.Session.create(
-        success_url=f"{public_url}/",
-        cancel_url=f"{public_url}/seats?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
+        success_url=f"{public_url}{url_for('orders')}",
+        cancel_url=f"{public_url}{url_for('seats')}?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
         line_items=line_items,
         mode='payment'
     )
@@ -278,8 +275,6 @@ def order():
 def payment_completed():
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
-    print(payload)
-    print(sig_header)
     event = None
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
@@ -299,6 +294,7 @@ def payment_completed():
         product = stripe.Product.retrieve(
             item['price']['product']
         )
+        print(product)
         metadata = product['metadata']
         ticket_table.create(Ticket(
             user_id=metadata['user_id'],
@@ -321,7 +317,6 @@ def orders():
         'station_end_id': ticket.trip_station_end_id,
         'token': ticket.token
     } for ticket in tickets]}
-    print(data)
     return render_template('orders.html', data=data)
 
 @app.route("/verify", methods=['GET'])
@@ -330,13 +325,15 @@ def verify():
     token = request.args.get('token')
     ticket = ticket_table.verify(id, token)
     if not ticket:
-        return {'status': 'invalid'}
-    return {'status': 'valid',
+        data = {'status': 'invalid'}
+    else:
+        data = {'status': 'valid',
             'data': {
                 'user_id': ticket.user_id,
                 'seat_id': ticket.seat_id,
                 'id': ticket.id
             }}
+    return render_template('verify.html', data=data)
 
 @app.route("/qrcode", methods=['GET'])
 def generate_qrcode():

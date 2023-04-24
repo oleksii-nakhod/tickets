@@ -1,5 +1,6 @@
 from database.interface.user import IUser
 from database.entity.user import User
+from database.mysql_implementation.cursor import *
 import bcrypt
 
 class MysqlUser(IUser):
@@ -10,27 +11,15 @@ class MysqlUser(IUser):
     def read_all(self):
         result = None
         query = f"SELECT * FROM {self.tname};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = [User(*args) for args in self.cur.fetchall()]
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = [User(*args) for args in cursor.fetchall()]
         return result
 
     def read(self, id):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = User(*self.cur.fetchone())
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = User(*cursor.fetchone())
         return result
 
     def create(self, user, password):
@@ -38,7 +27,6 @@ class MysqlUser(IUser):
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
         vals = (user.name, user.email, password_hash, user.user_role_id)
-        print(vals)
         query = f"INSERT INTO {self.tname} ( \
                     name, \
                     email, \
@@ -51,15 +39,8 @@ class MysqlUser(IUser):
                     %s, \
                     %s \
                 )"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query, vals)
-            self.cnx.commit()
-            result = self.cur.lastrowid
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query, vals) as cursor:
+            result = cursor.lastrowid
         return result
 
     def update(self, id, fields):
@@ -74,43 +55,23 @@ class MysqlUser(IUser):
                 vals.append(f"{key} = '{fields[key]}'")
         vals = ', '.join(vals)
         query = f"UPDATE {self.tname} SET {vals} WHERE id={id};"
-        print(query)
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            self.cnx.commit()
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            pass
 
     def delete(self, id):
         query = f"DELETE FROM {self.tname} WHERE id={id}"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            self.cnx.commit()
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            pass
             
     def find(self, email, password=None):
         result = []
         query = f"SELECT * FROM {self.tname} WHERE email='{email}';"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            temp = self.cur.fetchone()
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            temp = cursor.fetchone()
             if temp:
                 user = User(*temp)
             else:
                 return result
-            self.cnx.close()
             if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
                 result = user
-
-        except Exception as e:
-            print(e)
         return result

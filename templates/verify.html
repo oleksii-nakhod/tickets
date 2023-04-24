@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container-fluid" id="admin-content">
+{% if data['status'] == 'valid' %}
+<div class="alert alert-success" role="alert">
+  This ticket is valid!
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert">
+  This ticket is invalid!
+</div>
+{% endif %}
+</main>
+{% endblock %}

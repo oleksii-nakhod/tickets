@@ -8,3 +8,4 @@ from database.mysql_implementation.trip_station import *
 from database.mysql_implementation.trip import *
 from database.mysql_implementation.user_role import *
 from database.mysql_implementation.user import *
+from database.mysql_implementation.cursor import *

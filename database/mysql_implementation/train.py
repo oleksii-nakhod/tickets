@@ -1,6 +1,6 @@
 from database.interface.train import ITrain
 from database.entity.train import Train
-
+from database.mysql_implementation.cursor import *
 
 class MysqlTrain(ITrain):
     def __init__(self, cnxpool):
@@ -10,27 +10,15 @@ class MysqlTrain(ITrain):
     def read_all(self):
         result = None
         query = f"SELECT * FROM {self.tname};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = [Train(*args) for args in self.cur.fetchall()]
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = [Train(*args) for args in cursor.fetchall()]
         return result
 
     def read(self, id):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        try:
-            self.cnx = self.cnxpool.get_connection()
-            self.cur = self.cnx.cursor()
-            self.cur.execute(query)
-            result = Train(*self.cur.fetchone())
-            self.cnx.close()
-        except Exception as e:
-            print(e)
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = Train(*cursor.fetchone())
         return result
 
     
