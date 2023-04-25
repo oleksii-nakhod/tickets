@@ -53,6 +53,13 @@ class MysqlTicket(ITicket):
             result = [Ticket(*args) for args in cursor.fetchall()]
         return result
     
+    def info(self, id):
+        result = None
+        query = f"SELECT ticket.id as id, train.name as train_name, carriage.num as carriage_num, seat.num as seat_num, ticket.trip_station_start_id as trip_station_start_id, ticket.trip_station_end_id as trip_station_end_id, user.email as user_email FROM ticket JOIN user ON user.id = ticket.user_id JOIN seat ON seat.id = ticket.seat_id JOIN carriage ON carriage.id = seat.carriage_id JOIN train ON train.id = carriage.train_id WHERE ticket.id={id}"
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            result = cursor.fetchone()
+        return result
+    
     def verify(self, id, token):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = '{token}'"

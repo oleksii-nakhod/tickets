@@ -309,13 +309,19 @@ def orders():
     if not 'logged_in' in session or not session['logged_in']:
         return redirect(url_for('index'))
     tickets = ticket_table.find(session['id'])
-    data = {'tickets': [{
-        'id': ticket.id,
-        'seat_id': ticket.seat_id,
-        'station_start_id': ticket.trip_station_start_id,
-        'station_end_id': ticket.trip_station_end_id,
-        'token': ticket.token
-    } for ticket in tickets]}
+    data = {'tickets': []}
+    for ticket in tickets:
+        ticket_info = ticket_table.info(ticket.id)
+        trip_station_start = trip_station_table.read(ticket_info[4])
+        trip_station_end = trip_station_table.read(ticket_info[5])
+        station_start = station_table.read(trip_station_start.id)
+        station_end = station_table.read(trip_station_end.id)
+        data['tickets'].append({
+            'id': ticket_info[0],
+            'station_start_name': station_start.name,
+            'station_end_name': station_end.name,
+            'time_dep': trip_station_start.time_dep
+        })
     return render_template('orders.html', data=data)
 
 @app.route("/verify", methods=['GET'])
@@ -326,12 +332,24 @@ def verify():
     if not ticket:
         data = {'status': 'invalid'}
     else:
+        ticket_info = ticket_table.info(id)
+        trip_station_start = trip_station_table.read(ticket_info[4])
+        trip_station_end = trip_station_table.read(ticket_info[5])
+        station_start = station_table.read(trip_station_start.id)
+        station_end = station_table.read(trip_station_end.id)
         data = {'status': 'valid',
-            'data': {
-                'user_id': ticket.user_id,
-                'seat_id': ticket.seat_id,
-                'id': ticket.id
+            'ticket': {
+                'id': ticket_info[0],
+                'train_name': ticket_info[1],
+                'carriage_num': ticket_info[2],
+                'seat_num': ticket_info[3],
+                'station_start_name': station_start.name,
+                'station_end_name': station_end.name,
+                'time_dep': trip_station_start.time_dep,
+                'time_arr': trip_station_end.time_arr,
+                'user_email': ticket_info[6]
             }}
+    print(data)
     return render_template('verify.html', data=data)
 
 @app.route("/qrcode", methods=['GET'])
