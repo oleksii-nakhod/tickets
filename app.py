@@ -9,6 +9,7 @@ from database import *
 import qrcode
 import base64
 import stripe
+from command import *
 stripe.api_key = os.getenv('STRIPE_API_KEY')
 endpoint_secret = os.getenv('STRIPE_ENDPOINT_KEY')
 load_dotenv()
@@ -39,21 +40,33 @@ trip_station_table = database.get_table('trip_station')
 user_table = database.get_table('user')
 user_role_table = database.get_table('user_role')
 
+tables = {
+    'carriage': carriage_table,
+    'carriage_type': carriage_type_table,
+    'seat': seat_table,
+    'station': station_table,
+    'ticket': ticket_table,
+    'train': train_table,
+    'trip': trip_table,
+    'trip_station': trip_station_table,
+    'user': user_table,
+    'user_role': user_role_table
+}
 
-template_dir = os.path.abspath('frontend')
+
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 app.secret_key = b'yb4No3!w2NX528'
 
+with app.app_context():
+    app.config['tables'] = tables
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
-@app.route("/tickets")
-def tickets():
-    return None
 
 @app.route("/stations")
 def stations():
@@ -69,49 +82,21 @@ def stations():
 
 @app.route("/signup", methods=['POST'])
 def signup():
-    try:
-        user = user_table.find(request.json['email'])
-        if user:
-            return {'msg': 'This email address is already registered. If that\'s you, please log in instead.'}, 409
-        else:
-            user_id = user_table.create(User(
-                name=request.json['name'],
-                email=request.json['email'],
-                user_role_id=2
-            ), request.json['password'])
-            session['logged_in'] = True
-            session['id'] = user_id
-            session['email'] = request.json['email']
-            session['name'] = request.json['name']
-            session['user_role_id'] = 2
-            return {'msg': 'success'}, 200
-    except Exception as e:
-        print(e)
-    return {'msg': 'server error'}, 500
+    result = SignupCommand(request.json['name'], request.json['email'], request.json['password']).execute()
+    return result
 
 
 @app.route("/login", methods=['POST'])
 def login():
-    try:
-        user = user_table.find(request.json['email'], request.json['password'])
-        if user:
-            session['logged_in'] = True
-            session['id'] = user.id
-            session['email'] = user.email
-            session['name'] = user.name
-            session['user_role_id'] = user.user_role_id
-            return {'msg': 'Success'}, 200
-        else:
-            return {'msg': 'Incorrect email/password'}, 401
-    except Exception as e:
-        print(e)
-    return {'msg': 'Server Error'}, 500
+    result = LoginCommand(request.json['email'], request.json['password']).execute()
+    return result
 
 
 @app.route("/logout", methods=['GET'])
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
 
 @app.route("/profile", methods=['GET', 'PATCH'])
 def profile():
