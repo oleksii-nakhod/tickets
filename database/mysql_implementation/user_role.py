@@ -18,5 +18,7 @@ class MysqlUserRole(IUserRole):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = UserRole(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = UserRole(*args)
         return result

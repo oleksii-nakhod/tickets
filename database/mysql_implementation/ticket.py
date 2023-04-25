@@ -12,14 +12,15 @@ class MysqlTicket(ITicket):
         query = f"SELECT * FROM {self.tname};"
         with MysqlCursor(self.cnxpool, query) as cursor:
             result = [Ticket(*args) for args in cursor.fetchall()]
-        
         return result
 
     def read(self, id):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Ticket(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Ticket(*args)
         return result
 
     def create(self, ticket):
@@ -42,6 +43,7 @@ class MysqlTicket(ITicket):
                 )"
         with MysqlCursor(self.cnxpool, query, vals) as cursor:
             result = cursor.lastrowid
+        print(result)
         return result
 
     def find(self, user_id):
@@ -55,5 +57,7 @@ class MysqlTicket(ITicket):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id = {id} AND token = '{token}'"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Ticket(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Ticket(*args)
         return result

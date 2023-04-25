@@ -18,7 +18,9 @@ class MysqlTrip(ITrip):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Trip(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Trip(*args)
         return result
     
     def find(self, station_start, station_end, depart_date):

@@ -159,8 +159,10 @@ def search():
     trips = trip_table.find(from_station, to_station, depart_date)
     data = {'trips': []}
     for trip in trips:
-        train = train_table.read(trip[0])
         carriage_seats = carriage_table.find(trip[0])
+        if not carriage_seats:
+            continue
+        train = train_table.read(trip[0])
         duration_seconds = (trip[2] - trip[1]).total_seconds()
         hours = int(duration_seconds//3600)
         minutes = int((duration_seconds - hours * 3600)//60)
@@ -192,17 +194,18 @@ def search():
     data['station_end_name'] = station_end.name
     data['station_end_id'] = station_end.id
     data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
+    print(data)
     return render_template('search.html', data=data)
 
 
 @app.route("/seats", methods=['GET'])
 def seats():
     trip = request.args.get('trip')
-    train = request.args.get('train')
+    train = train_table.find(trip)
     ctype = request.args.get('ctype')
     from_station = request.args.get('from')
     to_station = request.args.get('to')
-    carriages = seat_table.find(trip, train, ctype, from_station, to_station)
+    carriages = seat_table.find(trip, train.id, ctype, from_station, to_station)
     station_start = station_table.read(from_station)
     station_end = station_table.read(to_station)
     trip_extra_info = trip_station_table.find(trip, from_station, to_station)
@@ -210,9 +213,8 @@ def seats():
     data = {
         'carriages': carriages,
         'trip_id': trip,
-        'train_id': train,
-        'train_name': train_table.read
-        (train).name,
+        'train_id': train.id,
+        'train_name': train.name,
         'station_start_name': station_start.name,
         'station_start_id': station_start.id,
         'station_end_name': station_end.name,
@@ -264,11 +266,10 @@ def order():
         })
     checkout_session = stripe.checkout.Session.create(
         success_url=f"{public_url}{url_for('orders')}",
-        cancel_url=f"{public_url}{url_for('seats')}?trip={trip.id}&train={train.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
+        cancel_url=f"{public_url}{url_for('seats')}?trip={trip.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
         line_items=line_items,
         mode='payment'
     )
-    print(checkout_session)
     return {'url': checkout_session.url}
 
 @app.route("/payment-completed", methods=['POST'])

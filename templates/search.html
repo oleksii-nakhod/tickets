@@ -3,7 +3,7 @@
 <main class="container-fluid" id="search-content">
     <h1>{{ data['station_start_name'] }} - {{ data['station_end_name'] }}</h1>
     <h2>{{ data['depart_date'] }}</h2>
-    <h3>{{ data['trips']|length }} trains</h3>
+    <h3>{{ data['trips']|length }} {{ "train" if data['trips']|length == 1 else "trains" }}</h3>
     {% for trip in data['trips'] %}
     <div class="card">
     <div class="card-body">
@@ -44,7 +44,7 @@
                     <div class="col-2 col-sm-1 justify-content-end d-flex bold">{{ carriage_seat['seat_quantity'] }}</div>
                     <div class="col-6 col-sm-4 justify-content-end d-flex bold">₴ {{'%0.2f'| format(carriage_seat['seat_price']/100|float)}}</div>
                     <div class="col-12 col-sm-4">
-                        <a href="/seats?trip={{ trip.id }}&train={{ trip.train_id }}&ctype={{ carriage_seat['carriage_id'] }}&from={{ data['station_start_id'] }}&to={{ data['station_end_id'] }}">
+                        <a href="/seats?trip={{ trip.id }}&ctype={{ carriage_seat['carriage_id'] }}&from={{ data['station_start_id'] }}&to={{ data['station_end_id'] }}">
                         <button type="submit" class="btn btn-primary w-100" id="btn-select">Select</button>
                         </a>
                     </div>

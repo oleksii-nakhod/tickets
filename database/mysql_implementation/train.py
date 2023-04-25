@@ -18,7 +18,18 @@ class MysqlTrain(ITrain):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Train(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Train(*args)
+        return result
+
+    def find(self, trip_id):
+        result = None
+        query = f"SELECT * FROM {self.tname} WHERE id=(SELECT train_id FROM trip WHERE id={trip_id});"
+        with MysqlCursor(self.cnxpool, query) as cursor:
+            args = cursor.fetchone()
+            if args:
+                result = Train(*args)
         return result
 
     

@@ -18,12 +18,14 @@ class MysqlSeat(ISeat):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Seat(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Seat(*args)
         return result
     
     def find(self, trip, train, ctype, from_station, to_station):
         result = None
-        query = f"SELECT carriage_id, GROUP_CONCAT(id), GROUP_CONCAT(num) FROM seat WHERE carriage_id IN(SELECT id FROM carriage WHERE carriage_type_id={ctype} AND train_id=(SELECT train_id FROM trip WHERE id={trip})) GROUP BY carriage_id;"
+        query = f"SELECT carriage_id, GROUP_CONCAT(id), GROUP_CONCAT(num) FROM seat WHERE carriage_id IN(SELECT id FROM carriage WHERE carriage_type_id={ctype} AND train_id=(SELECT train_id FROM trip WHERE id={trip})) AND seat.id NOT IN (SELECT seat_id FROM ticket WHERE trip_station_start_id IN (SELECT id FROM trip_station WHERE trip_id = 1)) GROUP BY carriage_id;"
         with MysqlCursor(self.cnxpool, query) as cursor:
             data = cursor.fetchall()
             result = []

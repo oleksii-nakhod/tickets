@@ -18,7 +18,9 @@ class MysqlCarriageType(ICarriageType):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = CarriageType(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = CarriageType(*args)
         return result
 
     

@@ -18,7 +18,9 @@ class MysqlStation(IStation):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = Station(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = Station(*args)
         return result
 
     def find(self, query):

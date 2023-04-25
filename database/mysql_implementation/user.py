@@ -19,7 +19,9 @@ class MysqlUser(IUser):
         result = None
         query = f"SELECT * FROM {self.tname} WHERE id={id};"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            result = User(*cursor.fetchone())
+            args = cursor.fetchone()
+            if args:
+                result = User(*args)
         return result
 
     def create(self, user, password):
@@ -67,9 +69,9 @@ class MysqlUser(IUser):
         result = []
         query = f"SELECT * FROM {self.tname} WHERE email='{email}';"
         with MysqlCursor(self.cnxpool, query) as cursor:
-            temp = cursor.fetchone()
-            if temp:
-                user = User(*temp)
+            args = cursor.fetchone()
+            if args:
+                user = User(*args)
             else:
                 return result
             if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
