@@ -41,6 +41,6 @@ class AuthService:
             print(e)
         return {'msg': 'server error'}, 500
     
-    def logout():
+    def logout(self):
         return session.clear()
     

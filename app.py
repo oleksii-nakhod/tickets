@@ -70,14 +70,8 @@ def index():
 
 @app.route("/stations")
 def stations():
-    stations = []
-    args = request.args
-    try:
-        query = args.get("q")
-        stations = station_table.find(query)
-    except Exception as e:
-        print(e)
-    return jsonify([station.__dict__ for station in stations])
+    result = SearchStationsCommand(request.args.get('q')).execute()
+    return result
 
 
 @app.route("/signup", methods=['POST'])
@@ -94,7 +88,7 @@ def login():
 
 @app.route("/logout", methods=['GET'])
 def logout():
-    session.clear()
+    result = LogoutCommand().execute()
     return redirect(url_for('index'))
 
 
@@ -137,80 +131,13 @@ def admin():
     
 @app.route("/search", methods=['GET'])
 def search():
-    from_station = request.args.get('from')
-    to_station = request.args.get('to')
-    depart_date = request.args.get('depart')
-    trips = trip_table.find(from_station, to_station, depart_date)
-    data = {'trips': []}
-    for trip in trips:
-        carriage_seats = carriage_table.find(trip[0])
-        if not carriage_seats:
-            continue
-        train = train_table.read(trip[0])
-        duration_seconds = (trip[2] - trip[1]).total_seconds()
-        hours = int(duration_seconds//3600)
-        minutes = int((duration_seconds - hours * 3600)//60)
-        duration = f'{hours} h {minutes} min'
-        data['trips'].append({
-            'id': trip[0],
-            'train_id': train.id,
-            'train_name': train.name,
-            'time_dep': trip[1],
-            'time_arr': trip[2],
-            'time_dep_pretty': trip[1].strftime('%H:%M'),
-            'time_arr_pretty': trip[2].strftime('%H:%M'),
-            'duration_pretty': duration,
-            'base_price': trip[3],
-            'carriage_seats': [
-                {
-                    'carriage_id': carriage_seat[0],
-                    'carriage_type': carriage_seat[1],
-                    'seat_price': int(trip[3] * carriage_seat[2]),
-                    'seat_quantity': carriage_seat[3]
-                }
-                for carriage_seat in carriage_seats
-            ]
-        })
-    station_start = station_table.read(from_station)
-    station_end = station_table.read(to_station)
-    data['station_start_name'] = station_start.name
-    data['station_start_id'] = station_start.id
-    data['station_end_name'] = station_end.name
-    data['station_end_id'] = station_end.id
-    data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
+    data = SearchTicketsCommand(request.args.get('from'), request.args.get('to'), request.args.get('depart')).execute()
     return render_template('search.html', data=data)
 
 
 @app.route("/seats", methods=['GET'])
 def seats():
-    trip = request.args.get('trip')
-    train = train_table.find(trip)
-    ctype = request.args.get('ctype')
-    from_station = request.args.get('from')
-    to_station = request.args.get('to')
-    carriages = seat_table.find(trip, train.id, ctype, from_station, to_station)
-    station_start = station_table.read(from_station)
-    station_end = station_table.read(to_station)
-    trip_extra_info = trip_station_table.find(trip, from_station, to_station)
-    carriage_type = carriage_type_table.read(ctype)
-    data = {
-        'carriages': carriages,
-        'trip_id': trip,
-        'train_id': train.id,
-        'train_name': train.name,
-        'station_start_name': station_start.name,
-        'station_start_id': station_start.id,
-        'station_end_name': station_end.name,
-        'station_end_id': station_end.id,
-        'carriage_type_id': ctype,
-        'carriage_type_name': carriage_type.name,
-        'price': int(trip_extra_info[2] * carriage_type.price_mod),
-        'depart_date': trip_extra_info[0].strftime('%Y-%m-%d'),
-        'depart_date_pretty': trip_extra_info[0].strftime('%a, %b %d %Y'),
-        'time_dep_pretty': trip_extra_info[0].strftime('%H:%M'),
-        'time_arr_pretty': trip_extra_info[1].strftime('%H:%M')
-    }
-
+    data = SearchSeatsCommand(request.args.get('trip'), request.args.get('ctype'), request.args.get('from'), request.args.get('to')).execute()
     return render_template('seats.html', data=data)
 
 
