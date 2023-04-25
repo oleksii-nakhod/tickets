@@ -48,10 +48,6 @@ a {
     font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
 }
 
-#profile-content {
-    max-width: 970px;
-}
-
 .container-fluid {
     max-width: 1500px;
 }

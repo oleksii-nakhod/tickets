@@ -34,9 +34,22 @@ $('#from, #to').autocomplete({
 });
 
 function validateTicketForm() {
-    if (!$('#fromHidden').val()) return false
-    if (!$('#toHidden').val()) return false
-    if (!$('#depart').val()) return false
+    if (!$('#fromHidden').val()) {
+        $('#message-search-error').text('Please select a departure city from the dropdown menu')
+        $('#message-search-error').show()
+        return false
+    }
+    if (!$('#toHidden').val()) {
+        $('#message-search-error').text('Please select a destination city from the dropdown menu')
+        $('#message-search-error').show()
+        return false
+    }
+    if (!$('#depart').val()) {
+        $('#message-search-error').text('Please select a departure date')
+        $('#message-search-error').show()
+        return false
+    }
+    $('#message-search-error').hide()
     return true;
 }
 

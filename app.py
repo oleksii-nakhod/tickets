@@ -130,7 +130,6 @@ def profile():
                     return {'msg': 'Incorrect password'}, 401
             user_table.update(session['id'], request.json['fields'])
             user = user_table.read(session['id'])
-            print(request.json['fields'])
             session['name'] = user.name
             session['email'] = user.email
             return {'msg': 'Success'}, 200
@@ -194,7 +193,6 @@ def search():
     data['station_end_name'] = station_end.name
     data['station_end_id'] = station_end.id
     data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
-    print(data)
     return render_template('search.html', data=data)
 
 
