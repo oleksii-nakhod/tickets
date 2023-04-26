@@ -1,9 +1,11 @@
-from flask import current_app, session
+from flask import current_app, session, redirect, url_for
 from database.entity.user import *
 
 class AuthService:
-    def login(self, email, password):
+    def login(self, request):
         try:
+            email = request.json['email']
+            password = request.json['password']
             user_table = current_app.config['tables']['user']
             user = user_table.find(email, password)
             if user:
@@ -19,8 +21,11 @@ class AuthService:
             print(e)
         return {'msg': 'Server Error'}, 500
     
-    def signup(self, name, email, password):
+    def signup(self, request):
         try:
+            name = request.json['name']
+            email = request.json['email']
+            password = request.json['password']
             user_table = current_app.config['tables']['user']
             user = user_table.find(email)
             if user:
@@ -42,5 +47,6 @@ class AuthService:
         return {'msg': 'server error'}, 500
     
     def logout(self):
-        return session.clear()
+        session.clear()
+        return redirect(url_for('index'))
     

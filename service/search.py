@@ -1,13 +1,16 @@
-from flask import current_app, session, jsonify
+from flask import current_app, session, jsonify, render_template, url_for
 from database.entity.user import *
 import datetime
 
 class SearchService:
-    def search_tickets(self, from_station, to_station, depart_date):
+    def search_tickets(self, request):
         trip_table = current_app.config['tables']['trip']
         carriage_table = current_app.config['tables']['carriage']
         train_table = current_app.config['tables']['train']
         station_table = current_app.config['tables']['station']
+        from_station = request.args.get('from')
+        to_station = request.args.get('to')
+        depart_date = request.args.get('depart')
         trips = trip_table.find(from_station, to_station, depart_date)
         data = {'trips': []}
         for trip in trips:
@@ -46,15 +49,19 @@ class SearchService:
         data['station_end_name'] = station_end.name
         data['station_end_id'] = station_end.id
         data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
-        return data
+        return render_template('search.html', data=data)
     
-    def search_seats(self, trip, ctype, from_station, to_station):
+    def search_seats(self, request):
         train_table = current_app.config['tables']['train']
         seat_table = current_app.config['tables']['seat']
         trip_station_table = current_app.config['tables']['trip_station']
         station_table = current_app.config['tables']['station']
         carriage_table = current_app.config['tables']['carriage']
         carriage_type_table = current_app.config['tables']['carriage_type']
+        trip = request.args.get('trip')
+        ctype = request.args.get('ctype')
+        from_station = request.args.get('from')
+        to_station = request.args.get('to')
         train = train_table.find(trip)
         carriages = seat_table.find(trip, train.id, ctype, from_station, to_station)
         station_start = station_table.read(from_station)
@@ -78,9 +85,10 @@ class SearchService:
             'time_dep_pretty': trip_extra_info[0].strftime('%H:%M'),
             'time_arr_pretty': trip_extra_info[1].strftime('%H:%M')
         }
-        return data
+        return render_template('seats.html', data=data)
     
-    def search_stations(self, query):
+    def search_stations(self, request):
         station_table = current_app.config['tables']['station']
+        query = request.args.get('q')
         stations = station_table.find(query)
         return jsonify([station.__dict__ for station in stations])

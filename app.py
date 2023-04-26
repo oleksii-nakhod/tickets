@@ -1,17 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_file, after_this_request
-import os
-import datetime
-import string
-import random
+from flask import Flask, render_template, request, redirect
 from dotenv import load_dotenv
 from connection import *
 from database import *
-import qrcode
-import base64
-import stripe
 from command import *
-stripe.api_key = os.getenv('STRIPE_API_KEY')
-endpoint_secret = os.getenv('STRIPE_ENDPOINT_KEY')
+
 load_dotenv()
 
 public_url = f"{os.getenv('DOMAIN')}"
@@ -54,13 +46,13 @@ tables = {
 }
 
 
-
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 app.secret_key = b'yb4No3!w2NX528'
 
 with app.app_context():
     app.config['tables'] = tables
+    app.config['public_url'] = public_url
 
 
 @app.route("/")
@@ -70,228 +62,95 @@ def index():
 
 @app.route("/stations")
 def stations():
-    result = SearchStationsCommand(request.args.get('q')).execute()
+    result = SearchStationsCommand(request).execute()
     return result
 
 
 @app.route("/signup", methods=['POST'])
 def signup():
-    result = SignupCommand(request.json['name'], request.json['email'], request.json['password']).execute()
+    result = SignupCommand(request).execute()
     return result
 
 
 @app.route("/login", methods=['POST'])
 def login():
-    result = LoginCommand(request.json['email'], request.json['password']).execute()
+    result = LoginCommand(request).execute()
     return result
 
 
 @app.route("/logout", methods=['GET'])
 def logout():
     result = LogoutCommand().execute()
-    return redirect(url_for('index'))
+    return result
 
 
 @app.route("/profile", methods=['GET', 'PATCH'])
 def profile():
     if request.method == 'GET':
-        if 'logged_in' in session and session['logged_in']:
-            return render_template("profile.html")
-        return redirect(url_for('index'))
+        result = ReadProfileCommand().execute()
         
     if request.method == 'PATCH':
-        if not 'logged_in' in session or not session['logged_in']:
-            return {'msg': 'Please log in to change your information'}, 401
-        try:
-            if 'password' in request.json['fields']:
-                user = user_table.find(session['email'], request.json['password'])
-                if not user:
-                    return {'msg': 'Incorrect password'}, 401
-            user_table.update(session['id'], request.json['fields'])
-            user = user_table.read(session['id'])
-            session['name'] = user.name
-            session['email'] = user.email
-            return {'msg': 'Success'}, 200
-        except Exception as e:
-            print(e)
-        return {'msg': 'Server Error'}, 500
+        result = UpdateProfileCommand(request).execute()
+    
+    return result
+
 
 @app.route("/admin", methods=['GET'])
 def admin():
-    if not 'logged_in' in session or not session['logged_in'] or not session['user_role_id'] == 1:
-        return redirect(url_for('index'))
-    users = user_table.read_all()
-    data = {'users': [{
-        'id': user.id,
-        'name': user.name,
-        'email': user.email,
-        'user_role_id': user.user_role_id
-    } for user in users]}
-    return render_template("admin.html", data=data)
-    
+    result = ReadUsersCommand().execute()
+    return result
+
+
 @app.route("/search", methods=['GET'])
 def search():
-    data = SearchTicketsCommand(request.args.get('from'), request.args.get('to'), request.args.get('depart')).execute()
-    return render_template('search.html', data=data)
+    result = SearchTicketsCommand(request).execute()
+    return result
 
 
 @app.route("/seats", methods=['GET'])
 def seats():
-    data = SearchSeatsCommand(request.args.get('trip'), request.args.get('ctype'), request.args.get('from'), request.args.get('to')).execute()
-    return render_template('seats.html', data=data)
+    result = SearchSeatsCommand(request).execute()
+    return result
 
 
-@app.route("/order", methods=['POST'])
-def order():
-    user_id = session['id']
-    station_start = station_table.read(request.json['station_start_id'])
-    station_end = station_table.read(request.json['station_end_id'])
-    trip = trip_table.read(request.json['trip_id'])
-    train = train_table.read(trip.train_id)
-    trip_extra_info = trip_station_table.find(
-        trip.id, request.json['station_start_id'], request.json['station_end_id'])
-    line_items = []
-    print(request.json)
-    for seat_id in request.json['seats']:
-        seat = seat_table.read(seat_id)
-        carriage = carriage_table.read(seat.carriage_id)
-        carriage_type = carriage_type_table.read(carriage.carriage_type_id)
-        train = train_table.read(carriage.train_id)
-        name = f"{station_start.name} - {station_end.name}, Train {train.name}, Carriage {carriage.num}, Seat: {seat.num}"
-        line_items.append({
-            'price_data': {
-                'currency': 'uah',
-                'unit_amount': trip_extra_info[2]*carriage_type.price_mod,
-                'product_data': {
-                    'name': name,
-                    'metadata': {
-                        'user_id': user_id,
-                        'seat_id': seat.id,
-                        'station_start_id': station_start.id,
-                        'station_end_id': station_end.id
-                    }
-                },
-            },
-            'quantity': 1
-        })
-    checkout_session = stripe.checkout.Session.create(
-        success_url=f"{public_url}{url_for('orders')}",
-        cancel_url=f"{public_url}{url_for('seats')}?trip={trip.id}&ctype={carriage_type.id}&from={station_start.id}&to={station_end.id}",
-        line_items=line_items,
-        mode='payment'
-    )
-    return {'url': checkout_session.url}
+@app.route("/orders", methods=['GET', 'POST'])
+def orders():
+    if request.method == 'GET':
+        result = ReadOrdersCommand().execute()
+
+    if request.method == 'POST':
+        result = CreateOrderCommand(request).execute()
+    
+    return result
+
 
 @app.route("/payment-completed", methods=['POST'])
 def payment_completed():
-    payload = request.get_data(as_text=True)
-    sig_header = request.headers.get('Stripe-Signature')
-    event = None
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-    except ValueError as e:
-        # Invalid payload
-        return {'msg': 'Invalid payload'}, 400
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
-        return {'msg': 'This request didn\'t come from Stripe'}, 400
+    result = CompleteOrderCommand(request).execute()
+    return result
 
-    # Passed signature verification
-    checkout_session = stripe.checkout.Session.retrieve(
-        request.json['data']['object']['id'],
-        expand=['line_items']
-    )
-    for item in checkout_session['line_items']['data']:
-        product = stripe.Product.retrieve(
-            item['price']['product']
-        )
-        print(product)
-        metadata = product['metadata']
-        ticket_table.create(Ticket(
-            user_id=metadata['user_id'],
-            seat_id=metadata['seat_id'],
-            trip_station_start_id=metadata['station_start_id'],
-            trip_station_end_id=metadata['station_end_id'],
-            token=''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        ))
-    return {'msg': 'success'}, 200
-
-@app.route("/orders", methods=['GET'])
-def orders():
-    if not 'logged_in' in session or not session['logged_in']:
-        return redirect(url_for('index'))
-    tickets = ticket_table.find(session['id'])
-    data = {'tickets': []}
-    for ticket in tickets:
-        ticket_info = ticket_table.info(ticket.id)
-        trip_station_start = trip_station_table.read(ticket_info[4])
-        trip_station_end = trip_station_table.read(ticket_info[5])
-        station_start = station_table.read(trip_station_start.id)
-        station_end = station_table.read(trip_station_end.id)
-        data['tickets'].append({
-            'id': ticket_info[0],
-            'station_start_name': station_start.name,
-            'station_end_name': station_end.name,
-            'time_dep': trip_station_start.time_dep
-        })
-    return render_template('orders.html', data=data)
 
 @app.route("/verify", methods=['GET'])
 def verify():
-    id = request.args.get('id')
-    token = request.args.get('token')
-    ticket = ticket_table.verify(id, token)
-    if not ticket:
-        data = {'status': 'invalid'}
-    else:
-        ticket_info = ticket_table.info(id)
-        trip_station_start = trip_station_table.read(ticket_info[4])
-        trip_station_end = trip_station_table.read(ticket_info[5])
-        station_start = station_table.read(trip_station_start.id)
-        station_end = station_table.read(trip_station_end.id)
-        data = {'status': 'valid',
-            'ticket': {
-                'id': ticket_info[0],
-                'train_name': ticket_info[1],
-                'carriage_num': ticket_info[2],
-                'seat_num': ticket_info[3],
-                'station_start_name': station_start.name,
-                'station_end_name': station_end.name,
-                'time_dep': trip_station_start.time_dep,
-                'time_arr': trip_station_end.time_arr,
-                'user_email': ticket_info[6]
-            }}
-    print(data)
-    return render_template('verify.html', data=data)
+    result = VerifyOrderCommand(request).execute()
+    return result
+
 
 @app.route("/qrcode", methods=['GET'])
 def generate_qrcode():
-    if not 'logged_in' in session or not session['logged_in']:
-        return redirect(url_for('index'))
-    ticket_id = request.args.get('ticket-id')
-    ticket = ticket_table.read(ticket_id)
-    if ticket.user_id != session['id']:
-        return redirect(url_for('index'))
-    img = qrcode.make(f"{public_url}{url_for('verify')}?id={ticket_id}&token={ticket.token}")
-    img_path = f'qrcode-{ticket_id}.png'
-    img.save(img_path)
-    response = send_file(img_path, mimetype='image/png')
-    @after_this_request
-    def remove_file(response):
-        try:
-            os.remove(img_path)
-        except Exception as e:
-            print(e)
-        return response
-    return response
+    result = GenerateQrcodeCommand(request).execute()
+    return result
     
+
 @app.errorhandler(404)
 def handle_404(e):
     return redirect(url_for('index'))
 
+
 @app.errorhandler(500)
 def handle_500(e):
     return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5000, threaded=True, debug=True)

@@ -2,10 +2,9 @@ from command.interface.command import *
 from service.auth import *
 
 class LoginCommand(ICommand):
-    def __init__(self, email, password):
-        self.email = email
-        self.password = password
+    def __init__(self, request):
+        self.request = request
         
     def execute(self):
-        result = AuthService().login(self.email, self.password)
+        result = AuthService().login(self.request)
         return result

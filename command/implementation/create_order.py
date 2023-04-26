@@ -1,10 +1,10 @@
 from command.interface.command import *
-from service.auth import *
+from service.order import *
 
-class SignupCommand(ICommand):
+class CreateOrderCommand(ICommand):
     def __init__(self, request):
         self.request = request
         
     def execute(self):
-        result = AuthService().signup(self.request)
+        result = OrderService().create(self.request)
         return result

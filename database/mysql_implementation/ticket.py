@@ -26,7 +26,6 @@ class MysqlTicket(ITicket):
     def create(self, ticket):
         result = None
         vals = (ticket.user_id, ticket.seat_id, ticket.trip_station_start_id, ticket.trip_station_end_id, ticket.token)
-        print(vals)
         query = f"INSERT INTO {self.tname} ( \
                     user_id, \
                     seat_id, \
@@ -43,7 +42,6 @@ class MysqlTicket(ITicket):
                 )"
         with MysqlCursor(self.cnxpool, query, vals) as cursor:
             result = cursor.lastrowid
-        print(result)
         return result
 
     def find(self, user_id):

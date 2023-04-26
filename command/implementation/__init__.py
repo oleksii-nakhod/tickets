@@ -4,3 +4,11 @@ from command.implementation.logout import *
 from command.implementation.search_tickets import *
 from command.implementation.search_seats import *
 from command.implementation.search_stations import *
+from command.implementation.read_profile import *
+from command.implementation.update_profile import *
+from command.implementation.read_users import *
+from command.implementation.read_orders import *
+from command.implementation.create_order import *
+from command.implementation.complete_order import *
+from command.implementation.verify_order import *
+from command.implementation.generate_qrcode import *

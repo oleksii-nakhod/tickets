@@ -1,10 +1,10 @@
 from command.interface.command import *
-from service.auth import *
+from service.profile import *
 
-class SignupCommand(ICommand):
+class UpdateProfileCommand(ICommand):
     def __init__(self, request):
         self.request = request
         
     def execute(self):
-        result = AuthService().signup(self.request)
+        result = ProfileService().update(self.request)
         return result

@@ -229,7 +229,7 @@ $('#btn-pay').on('click', ()=>{
     console.log(json)
     $.ajax({
         type: 'POST',
-        url: url_order,
+        url: url_orders,
         data: JSON.stringify(json),
         success: function (data, status, request) {
             $('#spinner-pay').hide()
