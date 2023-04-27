@@ -4,3 +4,4 @@ mysql-connector-python==8.0.32
 python-dotenv==1.0.0
 stripe==5.4.0
 qrcode==7.4.2
+waitress==2.1.2

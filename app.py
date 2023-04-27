@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect
+from waitress import serve
 from dotenv import load_dotenv
 from connection import *
 from database import *
@@ -153,4 +154,4 @@ def handle_500(e):
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=5000, threaded=True, debug=True)
+    serve(app, host='0.0.0.0', port=5000)
