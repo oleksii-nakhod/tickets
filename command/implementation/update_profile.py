@@ -6,5 +6,11 @@ class UpdateProfileCommand(ICommand):
         self.request = request
         
     def execute(self):
-        result = ProfileService().update(self.request)
+        fields = self.request.json['fields']
+        password = None
+        try:
+            password = self.request.json['password']
+        except:
+            pass
+        result = ProfileService().update(fields, password)
         return result

@@ -6,5 +6,8 @@ class SignupCommand(ICommand):
         self.request = request
         
     def execute(self):
-        result = AuthService().signup(self.request)
+        name = self.request.json['name']
+        email = self.request.json['email']
+        password = self.request.json['password']
+        result = AuthService().signup(name, email, password)
         return result

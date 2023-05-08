@@ -6,5 +6,8 @@ class SearchTicketsCommand(ICommand):
         self.request = request
         
     def execute(self):
-        result = SearchService().search_tickets(self.request)
+        from_station = self.request.args.get('from')
+        to_station = self.request.args.get('to')
+        depart_date = self.request.args.get('depart')
+        result = SearchService().search_tickets(from_station, to_station, depart_date)
         return result

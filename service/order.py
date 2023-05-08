@@ -30,7 +30,7 @@ class OrderService:
             })
         return render_template('orders.html', data=data)
     
-    def create(self, request):
+    def create(self, station_start_id, station_end_id, trip_id, seats):
         load_dotenv()
         stripe.api_key = os.getenv('STRIPE_API_KEY')
         station_table = current_app.config['tables']['station']
@@ -42,14 +42,14 @@ class OrderService:
         carriage_type_table = current_app.config['tables']['carriage_type']
         seat_table = current_app.config['tables']['seat']
         public_url = current_app.config['public_url']
-        station_start = station_table.read(request.json['station_start_id'])
-        station_end = station_table.read(request.json['station_end_id'])
-        trip = trip_table.read(request.json['trip_id'])
+        station_start = station_table.read(station_start_id)
+        station_end = station_table.read(station_end_id)
+        trip = trip_table.read(trip_id)
         train = train_table.read(trip.train_id)
         trip_extra_info = trip_station_table.find(
-            trip.id, request.json['station_start_id'], request.json['station_end_id'])
+            trip.id, station_start_id, station_end_id)
         line_items = []
-        for seat_id in request.json['seats']:
+        for seat_id in seats:
             seat = seat_table.read(seat_id)
             carriage = carriage_table.read(seat.carriage_id)
             carriage_type = carriage_type_table.read(carriage.carriage_type_id)
@@ -79,12 +79,10 @@ class OrderService:
         )
         return {'url': checkout_session.url}
     
-    def complete(self, request):
+    def complete(self, payload, sig_header, checkout_session_id):
         ticket_table = current_app.config['tables']['ticket']
         stripe.api_key = os.getenv('STRIPE_API_KEY')
         endpoint_secret = os.getenv('STRIPE_ENDPOINT_KEY')
-        payload = request.get_data(as_text=True)
-        sig_header = request.headers.get('Stripe-Signature')
         event = None
         try:
             event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
@@ -94,7 +92,7 @@ class OrderService:
             return {'msg': 'This request didn\'t come from Stripe'}, 400
 
         checkout_session = stripe.checkout.Session.retrieve(
-            request.json['data']['object']['id'],
+            checkout_session_id,
             expand=['line_items']
         )
         for item in checkout_session['line_items']['data']:
@@ -111,12 +109,10 @@ class OrderService:
             ))
         return {'msg': 'success'}, 200
     
-    def verify(self, request):
+    def verify(self, id, token):
         ticket_table = current_app.config['tables']['ticket']
         trip_station_table = current_app.config['tables']['trip_station']
         station_table = current_app.config['tables']['station']
-        id = request.args.get('id')
-        token = request.args.get('token')
         ticket = ticket_table.verify(id, token)
         if not ticket:
             data = {'status': 'invalid'}
@@ -140,11 +136,10 @@ class OrderService:
                 }}
         return render_template('verify.html', data=data)
     
-    def generate_qrcode(self, request):
+    def generate_qrcode(self, ticket_id):
         if not 'logged_in' in session or not session['logged_in']:
             return redirect(url_for('index'))
         ticket_table = current_app.config['tables']['ticket']
-        ticket_id = request.args.get('ticket-id')
         ticket = ticket_table.read(ticket_id)
         public_url = current_app.config['public_url']
         if ticket.user_id != session['id']:

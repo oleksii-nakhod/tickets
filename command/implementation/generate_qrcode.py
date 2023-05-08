@@ -6,5 +6,6 @@ class GenerateQrcodeCommand(ICommand):
         self.request = request
         
     def execute(self):
-        result = OrderService().generate_qrcode(self.request)
+        ticket_id = self.request.args.get('ticket-id')
+        result = OrderService().generate_qrcode(ticket_id)
         return result
