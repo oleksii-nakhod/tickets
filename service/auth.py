@@ -1,20 +1,21 @@
 from flask import current_app, session, redirect, url_for
-from database.entity.user import *
+from database.mysql_implementation.user import *
 
 class AuthService:
     def login(self, email, password):
         try:
-            user_table = current_app.config['tables']['user']
-            user = user_table.find(email, password)
-            if user:
-                session['logged_in'] = True
-                session['id'] = user.id
-                session['email'] = user.email
-                session['name'] = user.name
-                session['user_role_id'] = user.user_role_id
-                return {'msg': 'Success'}, 200
-            else:
-                return {'msg': 'Incorrect email/password'}, 401
+            engine = current_app.config['engine']
+            with Session(engine) as s:
+                user = MysqlUser().find(s, email, password)
+                if user:
+                    session['logged_in'] = True
+                    session['id'] = user.id
+                    session['email'] = user.email
+                    session['name'] = user.name
+                    session['user_role_id'] = user.user_role_id
+                    return {'msg': 'Success'}, 200
+                else:
+                    return {'msg': 'Incorrect email/password'}, 401
         except Exception as e:
             print(e)
         return {'msg': 'Server Error'}, 500

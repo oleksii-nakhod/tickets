@@ -1,27 +1,16 @@
 from database.interface.user import IUser
-from database.entity.user import User
-from database.mysql_implementation.cursor import *
+from database.entity.user import *
 import bcrypt
 
 class MysqlUser(IUser):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'user'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [User(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(User)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = User(*args)
+    def read(self, session, id):
+        stmt = select(User).where(User.id == id)
+        result = session.scalars(stmt).one()
         return result
 
     def create(self, user, password):
@@ -45,35 +34,30 @@ class MysqlUser(IUser):
             result = cursor.lastrowid
         return result
 
-    def update(self, id, fields):
-        vals = []
-        for key in fields:
+    def update(self, session, id, fields):
+        vals = {}
+        for key, value in fields.items():
             if key == 'password':
-                password = fields[key]
+                password = value
                 salt = bcrypt.gensalt()
                 password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
-                vals.append(f"password_hash = '{password_hash.decode('utf-8')}'")
+                vals['password_hash'] = password_hash.decode('utf-8')
             else:
-                vals.append(f"{key} = '{fields[key]}'")
-        vals = ', '.join(vals)
-        query = f"UPDATE {self.tname} SET {vals} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            pass
+                vals[key] = value
+        
+        stmt = update(User).where(User.id == id).values(vals)
+        session.execute(stmt)
+        session.commit()
 
     def delete(self, id):
         query = f"DELETE FROM {self.tname} WHERE id={id}"
         with MysqlCursor(self.cnxpool, query) as cursor:
             pass
             
-    def find(self, email, password=None):
-        result = []
-        query = f"SELECT * FROM {self.tname} WHERE email='{email}';"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                user = User(*args)
-            else:
-                return result
-            if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
-                result = user
+    def find(self, session, email, password=None):
+        result = None
+        stmt = select(User).where(User.email == email)
+        user = session.scalars(stmt).one()
+        if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
+            result = user
         return result

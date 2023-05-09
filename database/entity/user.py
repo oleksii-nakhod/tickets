@@ -1,10 +1,15 @@
-class User():
-    def __init__(self, id=None, name=None, email=None, password_hash=None, user_role_id=None):
-        self.id = id
-        self.name = name
-        self.email = email
-        self.password_hash = password_hash
-        self.user_role_id = user_role_id
+from .base import *
+
+class User(Base):
+    __tablename__ = "user"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30))
+    email: Mapped[str] = mapped_column(String(30))
+    password_hash: Mapped[str] = mapped_column(String(60))
+    user_role_id: Mapped[int] = mapped_column(ForeignKey("user_role.id"))
     
-    def print_info(self):
-        print(f'User #{self.id}\nName: {self.name}\nEmail: {self.email}\nPassword hash: {self.password_hash}\nUser type ID: {self.user_role_id}\n')
+    user_role: Mapped["UserRole"] = relationship(back_populates="user")
+
+    def __repr__(self) -> str:
+        return f"User(id={self.id!r}, name={self.name!r})"

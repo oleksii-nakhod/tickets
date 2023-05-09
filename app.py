@@ -9,50 +9,18 @@ load_dotenv()
 
 public_url = f"{os.getenv('DOMAIN')}"
 
-cnxpool_config = {
-    "host": f"{os.getenv('HOST')}",
-    "database": os.getenv('DATABASE'),
-    "user": os.getenv('USER'),
-    "password": os.getenv('PASSWORD')
-}
-
-database_type = os.getenv('DATABASE_TYPE')
-
-cnxpool = ConnectionPoolList().get_cnxpool(database_type, cnxpool_config)
-
-database = DatabaseList().get_database(database_type, cnxpool)
-
-carriage_table = database.get_table('carriage')
-carriage_type_table = database.get_table('carriage_type')
-seat_table = database.get_table('seat')
-station_table = database.get_table('station')
-ticket_table = database.get_table('ticket')
-train_table = database.get_table('train')
-trip_table = database.get_table('trip')
-trip_station_table = database.get_table('trip_station')
-user_table = database.get_table('user')
-user_role_table = database.get_table('user_role')
-
-tables = {
-    'carriage': carriage_table,
-    'carriage_type': carriage_type_table,
-    'seat': seat_table,
-    'station': station_table,
-    'ticket': ticket_table,
-    'train': train_table,
-    'trip': trip_table,
-    'trip_station': trip_station_table,
-    'user': user_table,
-    'user_role': user_role_table
-}
-
+engine = create_engine(
+    f"{os.getenv('DATABASE_TYPE')}+{os.getenv('DATABASE_API')}://{os.getenv('USER')}:{os.getenv('PASSWORD')}@{os.getenv('HOST')}/{os.getenv('DATABASE')}",
+    pool_size=5,
+    echo=True
+)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 app.secret_key = b'yb4No3!w2NX528'
 
 with app.app_context():
-    app.config['tables'] = tables
+    app.config['engine'] = engine
     app.config['public_url'] = public_url
 
 
