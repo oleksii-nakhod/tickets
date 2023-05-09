@@ -1,26 +1,15 @@
-from database.interface.ticket import ITicket
-from database.entity.ticket import Ticket
-from database.mysql_implementation.cursor import *
+from database.interface.ticket import *
+from database.entity.ticket import *
 
 class MysqlTicket(ITicket):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'ticket'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Ticket(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(Ticket)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Ticket(*args)
+    def read(self, session, id):
+        stmt = select(Ticket).where(Ticket.id == id)
+        result = session.scalars(stmt).one()
         return result
 
     def create(self, ticket):

@@ -1,10 +1,15 @@
-class Carriage():
-    def __init__(self, id, num, train_id, carriage_type_id):
-        self.id = id
-        self.num = num
-        self.train_id = train_id
-        self.carriage_type_id = carriage_type_id
+from .base import *
 
-    def print_info(self):
-        print(
-            f'Carriage #{self.id}\nNum: {self.num}\nTrain ID: {self.train_id}\nCarriage Type ID: {self.carriage_type_id}\n')
+class Carriage(Base):
+    __tablename__ = "carriage"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    num: Mapped[int] = mapped_column()
+    train_id: Mapped[int] = mapped_column(ForeignKey("train.id"))
+    train: Mapped["Train"] = relationship(back_populates="carriage")
+    carriage_type_id: Mapped[int] = mapped_column(ForeignKey("carriage_type.id"))
+    carriage_type: Mapped["CarriageType"] = relationship(back_populates="carriage")
+    seat: Mapped[List["Seat"]] = relationship(back_populates="carriage")
+
+    def __repr__(self) -> str:
+        return f"Carriage(id={self.id!r}, num={self.num!r}, train_id={self.train_id!r}, carriage_type_id={self.carriage_type_id!r})"

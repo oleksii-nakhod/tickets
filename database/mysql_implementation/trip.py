@@ -1,26 +1,15 @@
-from database.interface.trip import ITrip
-from database.entity.trip import Trip
-from database.mysql_implementation.cursor import *
+from database.interface.trip import *
+from database.entity.trip import *
 
 class MysqlTrip(ITrip):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'trip'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Trip(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(Trip)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Trip(*args)
+    def read(self, session, id):
+        stmt = select(Trip).where(Trip.id == id)
+        result = session.scalars(stmt).one()
         return result
     
     def find(self, station_start, station_end, depart_date):

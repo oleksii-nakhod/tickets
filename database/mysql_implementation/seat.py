@@ -1,26 +1,15 @@
-from database.interface.seat import ISeat
-from database.entity.seat import Seat
-from database.mysql_implementation.cursor import *
+from database.interface.seat import *
+from database.entity.seat import *
 
 class MysqlSeat(ISeat):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'seat'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Seat(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(Seat)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Seat(*args)
+    def read(self, session, id):
+        stmt = select(Seat).where(Seat.id == id)
+        result = session.scalars(stmt).one()
         return result
     
     def find(self, trip, train, ctype, from_station, to_station):

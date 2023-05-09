@@ -1,9 +1,12 @@
-class CarriageType():
-    def __init__(self, id, name, price_mod):
-        self.id = id
-        self.name = name
-        self.price_mod = price_mod
+from .base import *
 
-    def print_info(self):
-        print(
-            f'Carriage Type #{self.id}\nName: {self.name}\nPrice Modifier: {self.price_mod}\n')
+class CarriageType(Base):
+    __tablename__ = "carriage_type"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+    price_mod: Mapped[int] = mapped_column()
+    carriage: Mapped[List["Carriage"]] = relationship(back_populates="carriage_type")
+
+    def __repr__(self) -> str:
+        return f"CarriageType(id={self.id!r}, name={self.name!r}, price_mod={self.price_mod!r})"

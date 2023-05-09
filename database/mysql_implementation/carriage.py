@@ -1,26 +1,15 @@
-from database.interface.carriage import ICarriage
-from database.entity.carriage import Carriage
-from database.mysql_implementation.cursor import *
+from database.interface.carriage import *
+from database.entity.carriage import *
 
 class MysqlCarriage(ICarriage):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'carriage'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Carriage(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(Carriage)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Carriage(*args)
+    def read(self, session, id):
+        stmt = select(Carriage).where(Carriage.id == id)
+        result = session.scalars(stmt).one()
         return result
     
     def find(self, trip_id):

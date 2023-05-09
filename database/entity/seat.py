@@ -1,8 +1,13 @@
-class Seat():
-    def __init__(self, id=None, num=None, carriage_id=None):
-        self.id = id
-        self.num = num
-        self.carriage_id = carriage_id
+from .base import *
 
-    def print_info(self):
-        print(f'Seat #{self.id}\nNum: {self.num}\nCarriage ID: {self.carriage_id}\n')
+class Seat(Base):
+    __tablename__ = "seat"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    num: Mapped[int] = mapped_column()
+    carriage_id: Mapped[int] = mapped_column(ForeignKey("carriage.id"))
+    carriage: Mapped["Carriage"] = relationship(back_populates="seat")
+    ticket: Mapped[List["Ticket"]] = relationship(back_populates="seat")
+
+    def __repr__(self) -> str:
+        return f"Seat(id={self.id!r}, num={self.num!r}, carriage_id={self.carriage_id!r})"

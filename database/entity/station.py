@@ -1,10 +1,11 @@
-class Station():
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
+from .base import *
 
-    def print_info(self):
-        print(f'Station #{self.id}\nName: {self.name}\n')
+class Station(Base):
+    __tablename__ = "station"
 
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+    trip_station: Mapped[List["TripStation"]] = relationship(back_populates="station")
 
-
+    def __repr__(self) -> str:
+        return f"Station(id={self.id!r}, name={self.name!r})"

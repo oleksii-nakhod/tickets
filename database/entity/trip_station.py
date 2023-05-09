@@ -1,12 +1,17 @@
-class TripStation():
-    def __init__(self, id, trip_id, station_id, num, time_arr, time_dep, price):
-        self.id = id
-        self.trip_id = trip_id
-        self.station_id = station_id
-        self.num = num
-        self.time_arr = time_arr
-        self.time_dep = time_dep
-        self.price = price
+from .base import *
 
-    def print_info(self):
-        print(f'Trip Station #{self.id}\nTrip ID: {self.trip_id}\nStation ID: {self.station_id}\nNum: {self.num}\nArrival Time: {self.time_arr}\nDeparture Time: {self.time_dep}\n')
+class TripStation(Base):
+    __tablename__ = "trip_station"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    trip_id: Mapped[int] = mapped_column(ForeignKey("trip.id"))
+    trip: Mapped["Trip"] = relationship(back_populates="trip_station")
+    station_id: Mapped[int] = mapped_column(ForeignKey("station.id"))
+    station: Mapped["Station"] = relationship(back_populates="trip_station")
+    num: Mapped[int] = mapped_column()
+    time_arr: Mapped[datetime.datetime] = mapped_column()
+    time_dep: Mapped[datetime.datetime] = mapped_column()
+    price: Mapped[int] = mapped_column()
+
+    def __repr__(self) -> str:
+        return f"TripStation(id={self.id!r}, trip_id={self.trip_id!r}, station_id={self.station_id!r}, num={self.num!r}, time_arr={self.time_arr!r}, time_dep={self.time_dep!r}, price={self.price!r})"

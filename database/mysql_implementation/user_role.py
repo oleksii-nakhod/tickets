@@ -1,24 +1,13 @@
 from database.interface.user_role import *
-from database.entity.user_role import UserRole
-from database.mysql_implementation.cursor import *
+from database.entity.user_role import *
 
 class MysqlUserRole(IUserRole):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'user_role'
-
     def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [UserRole(*args) for args in cursor.fetchall()]
+        stmt = select(UserRole)
+        result = session.scalars(stmt)
         return result
 
     def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = UserRole(*args)
+        stmt = select(UserRole).where(UserRole.id == id)
+        result = session.scalars(stmt).one()
         return result

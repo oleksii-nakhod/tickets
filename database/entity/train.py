@@ -1,7 +1,12 @@
-class Train():
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
+from .base import *
 
-    def print_info(self):
-        print(f'Train #{self.id}\nName: {self.name}\n')
+class Train(Base):
+    __tablename__ = "train"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+    carriage: Mapped[List["Carriage"]] = relationship(back_populates="train")
+    trip: Mapped[List["Trip"]] = relationship(back_populates="train")
+
+    def __repr__(self) -> str:
+        return f"Train(id={self.id!r}, name={self.name!r})"

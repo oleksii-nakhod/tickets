@@ -1,5 +1,6 @@
 from flask import current_app, session, jsonify, render_template, url_for
 from database.entity.user import *
+from database.mysql_implementation.station import *
 import datetime
 
 class SearchService:
@@ -81,6 +82,12 @@ class SearchService:
         return render_template('seats.html', data=data)
     
     def search_stations(self, query):
-        station_table = current_app.config['tables']['station']
-        stations = station_table.find(query)
-        return jsonify([station.__dict__ for station in stations])
+        engine = current_app.config['engine']
+        result = []
+        with Session(engine) as s:
+            stations = MysqlStation().find(s, query)
+            for station in stations:
+                d = station.__dict__
+                d.pop('_sa_instance_state', None)
+                result.append(d)
+            return jsonify(result)

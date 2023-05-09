@@ -1,32 +1,20 @@
-from database.interface.station import IStation
-from database.entity.station import Station
-from database.mysql_implementation.cursor import *
+from database.interface.station import *
+from database.entity.station import *
 
 class MysqlStation(IStation):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'station'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Station(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(Station)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Station(*args)
+    def read(self, session, id):
+        stmt = select(Station).where(Station.id == id)
+        result = session.scalars(stmt).one()
         return result
 
-    def find(self, query):
-        result = []
-        query = f"SELECT * FROM {self.tname} WHERE name LIKE '{query}%';"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [Station(*args) for args in cursor.fetchall()]
+    def find(self, session, query):
+        stmt = select(Station).where(Station.name.like(f"{query}%"))
+        result = session.scalars(stmt)
+        print(result)
         return result
 

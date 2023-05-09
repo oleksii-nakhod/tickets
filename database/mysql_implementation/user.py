@@ -1,4 +1,4 @@
-from database.interface.user import IUser
+from database.interface.user import *
 from database.entity.user import *
 import bcrypt
 
@@ -48,11 +48,6 @@ class MysqlUser(IUser):
         stmt = update(User).where(User.id == id).values(vals)
         session.execute(stmt)
         session.commit()
-
-    def delete(self, id):
-        query = f"DELETE FROM {self.tname} WHERE id={id}"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            pass
             
     def find(self, session, email, password=None):
         result = None

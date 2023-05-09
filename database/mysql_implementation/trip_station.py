@@ -1,26 +1,15 @@
-from database.interface.trip_station import ITripStation
-from database.entity.trip_station import TripStation
-from database.mysql_implementation.cursor import *
+from database.interface.trip_station import *
+from database.entity.trip_station import *
 
 class MysqlTripStation(ITripStation):
-    def __init__(self, cnxpool):
-        self.cnxpool = cnxpool
-        self.tname = 'trip_station'
-
-    def read_all(self):
-        result = None
-        query = f"SELECT * FROM {self.tname};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            result = [TripStation(*args) for args in cursor.fetchall()]
+    def read_all(self, session):
+        stmt = select(TripStation)
+        result = session.scalars(stmt)
         return result
 
-    def read(self, id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id={id};"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = TripStation(*args)
+    def read(self, session, id):
+        stmt = select(TripStation).where(TripStation.id == id)
+        result = session.scalars(stmt).one()
         return result
     
     def find(self, trip_id, station_start, station_end):
