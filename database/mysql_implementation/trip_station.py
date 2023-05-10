@@ -13,9 +13,9 @@ class MysqlTripStation(ITripStation):
         return result
     
     def find(self, session, trip_id, station_start, station_end):
-        # stmt = select([t1.c.time_dep, t2.c.time_arr, t2.c.price-t1.c.price]).where(and_(and_(and_(t1.c.station_id == 1, t2.c.station_id == 2), t1.c.trip_id == 3), t2.c.trip_id == 3))
-        query = f"SELECT t1.time_dep, t2.time_arr, t2.price - t1.price FROM trip_station t1, trip_station t2 WHERE t1.station_id = {station_start} AND t2.station_id = {station_end} AND t1.trip_id = {trip_id} AND t2.trip_id = {trip_id}"
-        stmt = text(query)
+        t1 = aliased(TripStation)
+        t2 = aliased(TripStation)
+        stmt = select(t1.time_dep, t2.time_arr, t2.price - t1.price).select_from(join(t1, t2, t1.trip_id == t2.trip_id)).where(and_(t1.station_id == station_start, t2.station_id == station_end, t1.trip_id == trip_id, t2.trip_id == trip_id))
         result = session.execute(stmt).first()
         return result
     

@@ -18,11 +18,8 @@ class MysqlUser(IUser):
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
         vals = (user.name, user.email, password_hash, user.user_role_id)
         stmt = insert(User).values(name=user.name, email=user.email, password_hash=password_hash, user_role_id=user.user_role_id)
-        print("HI")
         result = session.execute(stmt).inserted_primary_key[0]
-        print("DSF")
         session.commit()
-        print(result)
         return result
 
     def update(self, session, id, fields):

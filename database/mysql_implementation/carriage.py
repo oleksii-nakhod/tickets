@@ -2,6 +2,9 @@ from database.interface.carriage import *
 from database.entity.carriage import *
 from database.entity.carriage_type import *
 from database.entity.seat import *
+from database.entity.trip import *
+from database.entity.ticket import *
+from database.entity.trip_station import *
 
 class MysqlCarriage(ICarriage):
     def read_all(self, session):
@@ -15,9 +18,23 @@ class MysqlCarriage(ICarriage):
         return result
     
     def find(self, session, trip_id):
-        # stmt = select([CarriageType.c.id, CarriageType.c.name, CarriageType.c.price_mod, text('count(*)')]).select_from(Seat.join(Carriage, Seat.c.carriage_id == Carriage.c.id).join(CarriageType, Carriage.c.carriage_type_id == CarriageType.c.id)).where(text('carriage_id'))
-        query = f"SELECT carriage_type.id, carriage_type.name, carriage_type.price_mod, count(*) FROM seat JOIN carriage ON seat.carriage_id = carriage.id JOIN carriage_type ON carriage.carriage_type_id = carriage_type.id WHERE carriage_id in (SELECT id FROM carriage WHERE train_id = (SELECT train_id FROM trip WHERE id = {trip_id})) AND seat.id NOT IN (SELECT seat_id FROM ticket WHERE trip_station_start_id IN (SELECT id FROM trip_station WHERE trip_id = {trip_id})) GROUP BY carriage_type.id, carriage_type.name;"
-        stmt = text(query)
+        subquery_carriage = select(Carriage.id).filter(Carriage.train_id == (select(Trip.train_id).filter(Trip.id == trip_id).scalar_subquery()))
+        
+        subquery_trip_station = select(TripStation.id).filter(TripStation.trip_id == trip_id)
+
+        stmt = select(
+            CarriageType.id,
+            CarriageType.name,
+            CarriageType.price_mod,
+            func.count()
+        ).join(Seat.carriage).join(CarriageType).filter(
+            Carriage.id.in_(subquery_carriage),
+            Seat.id.notin_(select(Ticket.seat_id).filter(Ticket.trip_station_start_id.in_(subquery_trip_station)))
+        ).group_by(
+            CarriageType.id,
+            CarriageType.name
+        )
+        
         result = session.execute(stmt)
         return result
     
