@@ -5,8 +5,9 @@ class AuthService:
     def login(self, email, password):
         try:
             engine = current_app.config['engine']
+            user_table = current_app.config['tables']['user']
             with Session(engine) as s:
-                user = MysqlUser().find(s, email, password)
+                user = user_table.find(s, email, password)
                 if user:
                     session['logged_in'] = True
                     session['id'] = user.id
@@ -22,22 +23,24 @@ class AuthService:
     
     def signup(self, name, email, password):
         try:
+            engine = current_app.config['engine']
             user_table = current_app.config['tables']['user']
-            user = user_table.find(email)
-            if user:
-                return {'msg': 'This email address is already registered. If that\'s you, please log in instead.'}, 409
-            else:
-                user_id = user_table.create(User(
-                    name=name,
-                    email=email,
-                    user_role_id=2
-                ), password)
-                session['logged_in'] = True
-                session['id'] = user_id
-                session['email'] = email
-                session['name'] = name
-                session['user_role_id'] = 2
-                return {'msg': 'success'}, 200
+            with Session(engine) as s:
+                user = user_table.find(s, email)
+                if user:
+                    return {'msg': 'This email address is already registered. If that\'s you, please log in instead.'}, 409
+                else:
+                    user_id = user_table.create(s, User(
+                        name=name,
+                        email=email,
+                        user_role_id=2
+                    ), password)
+                    session['logged_in'] = True
+                    session['id'] = user_id
+                    session['email'] = email
+                    session['name'] = name
+                    session['user_role_id'] = 2
+                    return {'msg': 'success'}, 200
         except Exception as e:
             print(e)
         return {'msg': 'server error'}, 500

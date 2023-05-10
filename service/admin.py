@@ -1,4 +1,4 @@
-from flask import current_app, session, redirect, render_template
+from flask import current_app, session, redirect, render_template, url_for
 from database.mysql_implementation.user import *
 
 class AdminService:
@@ -6,8 +6,9 @@ class AdminService:
         if not 'logged_in' in session or not session['logged_in'] or not session['user_role_id'] == 1:
             return redirect(url_for('index'))
         engine = current_app.config['engine']
+        user_table = current_app.config['tables']['user']
         with Session(engine) as s:
-            users = MysqlUser().read_all(s)
+            users = user_table.read_all(s)
             data = {'users': [{
                 'id': user.id,
                 'name': user.name,

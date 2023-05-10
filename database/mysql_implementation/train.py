@@ -1,5 +1,6 @@
 from database.interface.train import *
 from database.entity.train import *
+from database.entity.trip import *
 
 class MysqlTrain(ITrain):
     def read_all(self, session):
@@ -9,16 +10,13 @@ class MysqlTrain(ITrain):
 
     def read(self, session, id):
         stmt = select(Train).where(Train.id == id)
-        result = session.scalars(stmt).one()
+        result = session.scalars(stmt).first()
         return result
 
-    def find(self, trip_id):
-        result = None
-        query = f"SELECT * FROM {self.tname} WHERE id=(SELECT train_id FROM trip WHERE id={trip_id});"
-        with MysqlCursor(self.cnxpool, query) as cursor:
-            args = cursor.fetchone()
-            if args:
-                result = Train(*args)
+    def find(self, session, trip_id):
+        subq = select(Trip.train_id).where(Trip.id == trip_id).scalar_subquery()
+        stmt = select(Train).where(Train.id == subq)
+        result = session.scalars(stmt).first()
         return result
 
     

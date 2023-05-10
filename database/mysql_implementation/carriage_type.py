@@ -9,7 +9,7 @@ class MysqlCarriageType(ICarriageType):
 
     def read(self, session, id):
         stmt = select(CarriageType).where(CarriageType.id == id)
-        result = session.scalars(stmt).one()
+        result = session.scalars(stmt).first()
         return result
 
     

@@ -6,10 +6,10 @@ class DatabaseList():
             'mysql': MysqlTableList
         }
 
-    def get_database(self, db_type, cnxpool):
+    def get_database(self, db_type):
         db = None
         try:
-            db = self.db_list[db_type](cnxpool)
+            db = self.db_list[db_type]()
         except Exception as e:
             print(e)
         return db

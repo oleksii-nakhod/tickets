@@ -12,13 +12,14 @@ class ProfileService:
             return {'msg': 'Please log in to change your information'}, 401
         try:
             engine = current_app.config['engine']
+            user_table = current_app.config['tables']['user']
             with Session(engine) as s:
                 if 'password' in fields:
-                    user = MysqlUser().find(s, session['email'], password)
+                    user = user_table.find(s, session['email'], password)
                     if not user:
                         return {'msg': 'Incorrect password'}, 401
-                MysqlUser().update(s, session['id'], fields)
-                user = MysqlUser().read(s, session['id'])
+                user_table.update(s, session['id'], fields)
+                user = user_table.read(s, session['id'])
                 session['name'] = user.name
                 session['email'] = user.email
             return {'msg': 'Success'}, 200

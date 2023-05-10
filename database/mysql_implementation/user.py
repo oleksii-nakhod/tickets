@@ -10,28 +10,19 @@ class MysqlUser(IUser):
 
     def read(self, session, id):
         stmt = select(User).where(User.id == id)
-        result = session.scalars(stmt).one()
+        result = session.scalars(stmt).first()
         return result
 
-    def create(self, user, password):
-        result = None
+    def create(self, session, user, password):
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
         vals = (user.name, user.email, password_hash, user.user_role_id)
-        query = f"INSERT INTO {self.tname} ( \
-                    name, \
-                    email, \
-                    password_hash, \
-                    user_role_id \
-                ) \
-                VALUES ( \
-                    %s, \
-                    %s, \
-                    %s, \
-                    %s \
-                )"
-        with MysqlCursor(self.cnxpool, query, vals) as cursor:
-            result = cursor.lastrowid
+        stmt = insert(User).values(name=user.name, email=user.email, password_hash=password_hash, user_role_id=user.user_role_id)
+        print("HI")
+        result = session.execute(stmt).inserted_primary_key[0]
+        print("DSF")
+        session.commit()
+        print(result)
         return result
 
     def update(self, session, id, fields):
@@ -52,7 +43,7 @@ class MysqlUser(IUser):
     def find(self, session, email, password=None):
         result = None
         stmt = select(User).where(User.email == email)
-        user = session.scalars(stmt).one()
+        user = session.scalars(stmt).first()
         if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
             result = user
         return result
