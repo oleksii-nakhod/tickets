@@ -36,9 +36,7 @@
                     {% if session['user_role_id'] == 1 %}
                     <li><a class="dropdown-item" href="{{ url_for('admin') }}">Admin panel</a></li>
                     {% endif %}
-                    {% if session['user_role_id'] == 2 %}
                     <li><a class="dropdown-item" href="{{ url_for('orders') }}">My orders</a></li>
-                    {% endif %}
                     <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
                     <li><a class="dropdown-item" href="/logout" id="btn-logout">Log out</a></li>
                 </ul>

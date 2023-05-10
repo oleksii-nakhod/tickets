@@ -28,9 +28,17 @@ class MysqlTicket(ITicket):
         return result
     
     def info(self, session, id):
-        # stmt = select([Ticket.c.id.label('id'), Train.c.name.label('train_name'), Carriage.c.num.label('carriage_num'), Seat.c.num.label('seat_num'), Ticket.c.trip_station_start_id.label('trip_station_start_id'), Ticket.c.trip_station_end_id.label('trip_station_end_id'), User.c.email.label('user_email')]).select_from(Ticket.join(User, user.c.id == Ticket.c.user_id).join(Seat, Seat.c.id == Ticket.c.seat_id).join(Carriage, Carriage.c.id == Seat.c.carriage_id).join(Train, Train.c.id == Carriage.c.train_id)).where(Ticket.c.id)
-        query = f"SELECT ticket.id as id, train.name as train_name, carriage.num as carriage_num, seat.num as seat_num, ticket.trip_station_start_id as trip_station_start_id, ticket.trip_station_end_id as trip_station_end_id, user.email as user_email FROM ticket JOIN user ON user.id = ticket.user_id JOIN seat ON seat.id = ticket.seat_id JOIN carriage ON carriage.id = seat.carriage_id JOIN train ON train.id = carriage.train_id WHERE ticket.id={id}"
-        stmt = text(query)
+        stmt = select(
+            Ticket.id.label('id'),
+            Train.name.label('train_name'),
+            Carriage.num.label('carriage_num'),
+            Seat.num.label('seat_num'),
+            Ticket.trip_station_start_id.label('trip_station_start_id'),
+            Ticket.trip_station_end_id.label('trip_station_end_id'),
+            User.email.label('user_email')
+        ).join(User, User.id == Ticket.user_id).join(Seat, Seat.id == Ticket.seat_id).join(Carriage, Carriage.id == Seat.carriage_id).join(Train, Train.id == Carriage.train_id).filter(
+            Ticket.id == id
+        )
         result = session.execute(stmt).first()
         return result
     
