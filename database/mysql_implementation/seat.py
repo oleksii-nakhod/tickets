@@ -1,5 +1,9 @@
 from database.interface.seat import *
 from database.entity.seat import *
+from database.entity.carriage import *
+from database.entity.trip import *
+from database.entity.trip_station import *
+from database.entity.ticket import *
 
 class MysqlSeat(ISeat):
     def read_all(self, session):
@@ -13,9 +17,20 @@ class MysqlSeat(ISeat):
         return result
     
     def find(self, session, trip, train, ctype, from_station, to_station):
-        result = None
-        query = f"SELECT carriage_id, GROUP_CONCAT(id), GROUP_CONCAT(num) FROM seat WHERE carriage_id IN(SELECT id FROM carriage WHERE carriage_type_id={ctype} AND train_id=(SELECT train_id FROM trip WHERE id={trip})) AND seat.id NOT IN (SELECT seat_id FROM ticket WHERE trip_station_start_id IN (SELECT id FROM trip_station WHERE trip_id = 1)) GROUP BY carriage_id;"
-        stmt = text(query)
+        subquery_carriage = select(Carriage.id).filter(Carriage.carriage_type_id == ctype, Carriage.train_id == (select(Trip.train_id).filter(Trip.id == trip).scalar_subquery()))
+        subquery_trip_station = select(TripStation.id).filter(TripStation.trip_id == 1)
+
+        stmt = select(
+            Seat.carriage_id,
+            func.group_concat(Seat.id),
+            func.group_concat(Seat.num)
+        ).filter(
+            Seat.carriage_id.in_(subquery_carriage),
+            Seat.id.notin_(select(Ticket.seat_id).filter(Ticket.trip_station_start_id.in_(subquery_trip_station)))
+        ).group_by(
+            Seat.carriage_id
+        )
+        
         data = session.execute(stmt)
         result = []
         for carriage in data:
