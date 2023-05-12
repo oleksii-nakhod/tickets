@@ -41,6 +41,6 @@ class MysqlUser(IUser):
         result = None
         stmt = select(User).where(User.email == email)
         user = session.scalars(stmt).first()
-        if (password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
+        if (user == None or password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
             result = user
         return result
