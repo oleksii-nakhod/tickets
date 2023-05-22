@@ -20,7 +20,7 @@ pip install -r requirements.txt
 mysql> source init_database.sql
 ```
 3. Register a [Stripe](https://dashboard.stripe.com) developer account to get an API and endpoint keys.
-4. Rename .env.example to .env, replace sample environment variables.
+4. Rename the file `.env.example` to `.env`, replace sample environment variables.
 5. Start the server.
 ```
 python app.py
