@@ -1,21 +1,21 @@
 $('#from, #to').autocomplete({
     source: function (request, response) {
-        $.ajax({
-            url: url_stations,
-            dataType: "json",
-            data: {
-                q: request.term
-            },
-            success: function(data) {
-                response($.map(data, function (item) {
-                    return {
-                        label: item.name,
-                        value: item.name,
-                        id: item.id
-                    }
-                }));
+        fetch(`${url_stations}?q=${encodeURIComponent(request.term)}`)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Station autocomplete failed');
             }
-        });
+        })
+        .then(data => {
+            const mappedData = data.map(item => ({
+                label: item.name,
+                value: item.name,
+                id: item.id
+            }));
+            response(mappedData);
+        })
     },
     minLength: 0,
     cacheLength: 0,
@@ -73,22 +73,29 @@ function validateSignupForm() {
     });
     console.log(json);
     
-    $.ajax({
-            type: 'POST',
-            url: url_signup,
-            data: JSON.stringify(json),
-            success: function (data, status, request) {
-                $('#modal-signup').modal('hide')
-                $('#message-signup-error').hide()
-                location.reload()
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $('#message-signup-error').text(jqXHR.responseJSON['msg'])
-                $('#message-signup-error').show()
-            },
-            dataType: 'json',
-            contentType: 'application/json'
-        })
+    fetch(url_signup, {
+        method: 'POST',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            $('#modal-signup').modal('hide');
+            $('#message-signup-error').hide();
+            location.reload();
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.msg);
+            });
+        }
+    })
+    .catch(error => {
+        $('#message-signup-error').text(error.message);
+        $('#message-signup-error').show();
+    });
+
     return false
 }
 
@@ -98,24 +105,30 @@ function validateLoginForm() {
     $.each(array, function () {
         json[this.name] = this.value || "";
     });
-    console.log(json);
     
-    $.ajax({
-        type: 'POST',
-        url: url_login,
-        data: JSON.stringify(json),
-        success: function (data, status, request) {
-            $('#modal-login').modal('hide')
-            $('#message-login-error').hide()
-            location.reload()
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $('#message-login-error').text(jqXHR.responseJSON['msg'])
-            $('#message-login-error').show()
-        },
-        dataType: 'json',
-        contentType: 'application/json'
+    fetch(url_login, {
+        method: 'POST',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            $('#modal-login').modal('hide');
+            $('#message-login-error').hide();
+            location.reload();
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.msg);
+            });
+        }
+    })
+    .catch(error => {
+        $('#message-login-error').text(error.message);
+        $('#message-login-error').show();
     });
+
     return false
 }
 
@@ -136,23 +149,29 @@ function validateChangePasswordForm() {
             json['fields'][this.name] = this.value || "";
         }
     });
-    console.log(json);
     
-    $.ajax({
-        type: 'PATCH',
-        url: url_profile,
-        data: JSON.stringify(json),
-        success: function (data, status, request) {
-            $('#message-changepassword-error').hide()
-            location.reload()
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $('#message-changepassword-error').text(jqXHR.responseJSON['msg'])
-            $('#message-changepassword-error').show()
-        },
-        dataType: 'json',
-        contentType: 'application/json'
+    fetch(url_profile, {
+        method: 'PATCH',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            $('#message-changepassword-error').hide();
+            location.reload();
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.msg);
+            });
+        }
+    })
+    .catch(error => {
+        $('#message-changepassword-error').text(error.message);
+        $('#message-changepassword-error').show();
     });
+
     return false
 }
 
@@ -164,18 +183,24 @@ $('#btn-update-profile').on('click', () => {
     });
     console.log(json);
 
-    $.ajax({
-        type: 'PATCH',
-        url: url_profile,
-        data: JSON.stringify(json),
-        success: function (data, status, request) {
-            location.reload()
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-        },
-        dataType: 'json',
-        contentType: 'application/json'
+    fetch(url_profile, {
+        method: 'PATCH',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
+    .then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            throw new Error('Profile update failed');
+        }
+    })
+    .catch(error => {
+        console.log(error);
+    });
+
     return false
 })
 
@@ -191,12 +216,12 @@ $('#link-signup-modal').on('click', () => {
     return false;
 })
 
-$('input[name="radio-carriage"]').on('change', function(event){
+$('input[name="radio-carriage"]').on('change', function(){
     $('.carriage-seats').hide()
     $(`.${this.id}`).show()
 })
 
-$('.checkbox-seat').on('change', function (event) {
+$('.checkbox-seat').on('change', function(){
     if ($('.checkbox-seat:checked').length>0) {
         $('#hr-seat-ticket').collapse('show')
         $('#hr-ticket-total').collapse('show')
@@ -217,38 +242,39 @@ $('.checkbox-seat').on('change', function (event) {
 
 $('#btn-pay').on('click', ()=>{
     $('#spinner-pay').show()
+
     seats = $('.checkbox-seat:checked').map(function(){
         return $(this).data('seat-id')
     }).get()
+
     json = {
         'trip_id': $('#btn-pay').data('trip-id'),
         'station_start_id': Number($('#btn-pay').data('station-start')),
         'station_end_id': Number($('#btn-pay').data('station-end')),
         'seats': seats
     }
-    console.log(json)
-    $.ajax({
-        type: 'POST',
-        url: url_orders,
-        data: JSON.stringify(json),
-        success: function (data, status, request) {
-            $('#spinner-pay').hide()
-            window.location.href = data.url
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $('#spinner-pay').hide()
-            console.log('error');
-        },
-        dataType: 'json',
-        contentType: 'application/json'
-    });
+
+    fetch(url_orders, {
+        method: 'POST',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        window.location.href = data.url;
+    })
+    .finally(() => {
+        $('#spinner-pay').hide();
+    })
 })
 
 $('.btn-modal-qrcode').on('click', function() {
     fetch(`${url_qrcode}?ticket-id=${this.dataset.ticketId}`)
-        .then(res=>res.blob())
-        .then(blob=>{
-            img = URL.createObjectURL(blob)
-            $('#img-qrcode').attr('src', img)
-        })
+    .then(res => res.blob())
+    .then(blob => {
+        img = URL.createObjectURL(blob)
+        $('#img-qrcode').attr('src', img)
+    })
 })
