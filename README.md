@@ -6,7 +6,7 @@ To test the main functionality, follow these steps:
 2. Search for Kyiv-Dnipro trains on 27.03.2023.
 3. During payment, input the card number 4242 4242 4242 4242, any expiry date in the future, and any three-digit CVC ([Stripe docs](https://stripe.com/docs/testing) for reference).
 ## Self-hosting
-> **Note**
+> **Note**  
 > You will need a publicly accessible URL so that Stripe can send a confirmation of a successful payment.
 
 To host the code yourself, follow these steps:
