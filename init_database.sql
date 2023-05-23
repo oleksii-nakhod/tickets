@@ -14,6 +14,9 @@ CREATE TABLE user (
     email VARCHAR(50),
     password_hash CHAR(60),
     user_role_id INT,
+    confirmed_email BOOLEAN DEFAULT FALSE,
+    confirm_email_token VARCHAR(50),
+    reset_password_token VARCHAR(50),
     PRIMARY KEY (id),
     FOREIGN KEY (user_role_id)
         REFERENCES user_role(id)
@@ -129,19 +132,22 @@ INSERT INTO user (
     name,
     email,
     password_hash,
-    user_role_id
+    user_role_id,
+    confirmed_email
 )
 VALUES (
     'admin',
     'admin@admin.com',
     '$2a$12$1VrvxyQGSU0dPyCvYP1R2.ES5odC9BcRdrcUYMY.U6Axt.TJre.sa',
-    (SELECT id FROM user_role WHERE name = 'admin')
+    (SELECT id FROM user_role WHERE name = 'admin'),
+    TRUE
 ),
 (
     'Oleksii',
     'alexey.nakhod@gmail.com',
     '$2a$12$V1vo5iRM33tdkeRw4scmbuGeq1Sl4W8ugGNn9xkhnELjKN2GLcZUK',
-    (SELECT id FROM user_role WHERE name = 'client')
+    (SELECT id FROM user_role WHERE name = 'client'),
+    TRUE
 );
 
 INSERT INTO train (

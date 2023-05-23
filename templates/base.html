@@ -78,6 +78,9 @@
                         <div class="alert alert-warning collapse" id="message-signup-error">
                             Error
                         </div>
+                        <div class="alert alert-success collapse" id="message-signup-success">
+                            Success
+                        </div>
                         <button type="submit" class="btn btn-primary w-100" id="btn-signup">Sign up</button>
                         <p>Already have an account? <a id="link-login-modal" href="">Log in</a></p>
                     </form>
@@ -120,8 +123,9 @@
         const url_signup = {{ url_for("signup")|tojson }}
         const url_login = {{ url_for("login")|tojson }}
         const url_orders = {{ url_for("orders")|tojson }}
-        const url_qrcode = {{ url_for("generate_qrcode")|tojson }}
+        const url_qrcode = {{ url_for("create_qrcode")|tojson }}
         const url_profile = {{ url_for("profile")|tojson }}
+        const url_confirm = {{ url_for("confirm_account")|tojson }}
     </script>
 </body>
 </html>

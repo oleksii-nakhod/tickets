@@ -10,6 +10,9 @@ class User(Base):
     user_role_id: Mapped[int] = mapped_column(ForeignKey("user_role.id"))
     user_role: Mapped["UserRole"] = relationship(back_populates="user")
     ticket: Mapped[List["Ticket"]] = relationship(back_populates="user")
+    confirmed_email: Mapped[bool] = mapped_column()
+    confirm_email_token: Mapped[str] = mapped_column()
+    reset_password_token: Mapped[str] = mapped_column()
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r})"

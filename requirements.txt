@@ -6,3 +6,4 @@ stripe==5.4.0
 qrcode==7.4.2
 waitress==2.1.2
 sqlalchemy==2.0.12
+sendgrid==6.10.0

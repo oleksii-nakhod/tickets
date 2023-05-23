@@ -43,6 +43,8 @@ class OrderService:
         return render_template('orders.html', data=data)
     
     def create(self, station_start_id, station_end_id, trip_id, seats):
+        if not 'logged_in' in session or not session['logged_in']:
+            return {'msg': 'Please login to create an order'}, 401
         load_dotenv()
         stripe.api_key = os.getenv('STRIPE_API_KEY')
         user_id = session['id']
@@ -92,7 +94,7 @@ class OrderService:
                 line_items=line_items,
                 mode='payment'
             )
-        return {'url': checkout_session.url}
+        return {'url': checkout_session.url}, 200
     
     def complete(self, payload, sig_header, checkout_session_id):
         stripe.api_key = os.getenv('STRIPE_API_KEY')
@@ -155,7 +157,7 @@ class OrderService:
                     }}
         return render_template('verify.html', data=data)
     
-    def generate_qrcode(self, ticket_id):
+    def create_qrcode(self, ticket_id):
         if not 'logged_in' in session or not session['logged_in']:
             return redirect(url_for('index'))
         engine = current_app.config['engine']

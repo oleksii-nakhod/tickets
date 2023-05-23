@@ -11,4 +11,5 @@ from command.implementation.read_orders import *
 from command.implementation.create_order import *
 from command.implementation.complete_order import *
 from command.implementation.verify_order import *
-from command.implementation.generate_qrcode import *
+from command.implementation.create_qrcode import *
+from command.implementation.confirm_account import *

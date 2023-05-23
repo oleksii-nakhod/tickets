@@ -16,8 +16,7 @@ class MysqlUser(IUser):
     def create(self, session, user, password):
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
-        vals = (user.name, user.email, password_hash, user.user_role_id)
-        stmt = insert(User).values(name=user.name, email=user.email, password_hash=password_hash, user_role_id=user.user_role_id)
+        stmt = insert(User).values(name=user.name, email=user.email, password_hash=password_hash, user_role_id=user.user_role_id, confirm_email_token=user.confirm_email_token)
         result = session.execute(stmt).inserted_primary_key[0]
         session.commit()
         return result

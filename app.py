@@ -134,8 +134,14 @@ def verify():
 
 
 @app.route("/qrcode", methods=['GET'])
-def generate_qrcode():
-    result = GenerateQrcodeCommand(request).execute()
+def create_qrcode():
+    result = CreateQrcodeCommand(request).execute()
+    return result
+
+
+@app.route("/confirm", methods=['GET'])
+def confirm_account():
+    result = ConfirmAccountCommand(request).execute()
     return result
     
 

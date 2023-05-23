@@ -1,13 +1,7 @@
 $('#from, #to').autocomplete({
     source: function (request, response) {
         fetch(`${url_stations}?q=${encodeURIComponent(request.term)}`)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Station autocomplete failed');
-            }
-        })
+        .then(response => response.json())
         .then(data => {
             const mappedData = data.map(item => ({
                 label: item.name,
@@ -27,7 +21,7 @@ $('#from, #to').autocomplete({
             case 'to':
                 $('#toHidden').val(ui.item.id);
                 break;
-            default: {}
+            default: { }
         }
         return true;
     }
@@ -35,25 +29,25 @@ $('#from, #to').autocomplete({
 
 function validateTicketForm() {
     if (!$('#fromHidden').val()) {
-        $('#message-search-error').text('Please select a departure city from the dropdown menu')
-        $('#message-search-error').show()
+        $('#message-index-error').text('Please select a departure city from the dropdown menu')
+        $('#message-index-error').show()
         return false
     }
     if (!$('#toHidden').val()) {
-        $('#message-search-error').text('Please select a destination city from the dropdown menu')
-        $('#message-search-error').show()
+        $('#message-index-error').text('Please select a destination city from the dropdown menu')
+        $('#message-index-error').show()
         return false
     }
     if (!$('#depart').val()) {
-        $('#message-search-error').text('Please select a departure date')
-        $('#message-search-error').show()
+        $('#message-index-error').text('Please select a departure date')
+        $('#message-index-error').show()
         return false
     }
-    $('#message-search-error').hide()
+    $('#message-index-error').hide()
     return true;
 }
 
-$('#from, #to').on('input', (e)=>{
+$('#from, #to').on('input', (e) => {
     switch (e.target.id) {
         case 'from':
             $('#fromHidden').val('')
@@ -71,8 +65,7 @@ function validateSignupForm() {
     $.each(array, function () {
         json[this.name] = this.value || "";
     });
-    console.log(json);
-    
+
     fetch(url_signup, {
         method: 'POST',
         body: JSON.stringify(json),
@@ -82,14 +75,18 @@ function validateSignupForm() {
     })
     .then(response => {
         if (response.ok) {
-            $('#modal-signup').modal('hide');
             $('#message-signup-error').hide();
-            location.reload();
+            return response.json()
         } else {
+            $('#message-signup-success').hide();
             return response.json().then(data => {
                 throw new Error(data.msg);
             });
         }
+    })
+    .then(data => {
+        $('#message-signup-success').text(data.msg);
+        $('#message-signup-success').show();
     })
     .catch(error => {
         $('#message-signup-error').text(error.message);
@@ -105,7 +102,7 @@ function validateLoginForm() {
     $.each(array, function () {
         json[this.name] = this.value || "";
     });
-    
+
     fetch(url_login, {
         method: 'POST',
         body: JSON.stringify(json),
@@ -139,7 +136,7 @@ function validateChangePasswordForm() {
         return false
     }
     const array = $("#form-changepassword").serializeArray();
-    const json = {'fields': {}};
+    const json = { 'fields': {} };
     $.each(array, function () {
         if (this.name == 'password') {
             json['password'] = this.value || "";
@@ -149,7 +146,7 @@ function validateChangePasswordForm() {
             json['fields'][this.name] = this.value || "";
         }
     });
-    
+
     fetch(url_profile, {
         method: 'PATCH',
         body: JSON.stringify(json),
@@ -177,7 +174,7 @@ function validateChangePasswordForm() {
 
 $('#btn-update-profile').on('click', () => {
     const array = $("#form-profile").serializeArray();
-    const json = {'fields': {}};
+    const json = { 'fields': {} };
     $.each(array, function () {
         json['fields'][this.name] = this.value || "";
     });
@@ -190,21 +187,21 @@ $('#btn-update-profile').on('click', () => {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => {
-        if (response.ok) {
-            location.reload();
-        } else {
-            throw new Error('Profile update failed');
-        }
-    })
-    .catch(error => {
-        console.log(error);
-    });
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error('Profile update failed');
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
 
     return false
 })
 
-$('#link-login-modal').on('click', ()=>{
+$('#link-login-modal').on('click', () => {
     $('#modal-signup').modal('hide');
     $('#modal-login').modal('show');
     return false;
@@ -216,21 +213,21 @@ $('#link-signup-modal').on('click', () => {
     return false;
 })
 
-$('input[name="radio-carriage"]').on('change', function(){
+$('input[name="radio-carriage"]').on('change', function () {
     $('.carriage-seats').hide()
     $(`.${this.id}`).show()
 })
 
-$('.checkbox-seat').on('change', function(){
-    if ($('.checkbox-seat:checked').length>0) {
+$('.checkbox-seat').on('change', function () {
+    if ($('.checkbox-seat:checked').length > 0) {
         $('#hr-seat-ticket').collapse('show')
         $('#hr-ticket-total').collapse('show')
         $('#btn-pay').show()
         let total_price = 0
-        $('.checkbox-seat:checked').each(()=>{
+        $('.checkbox-seat:checked').each(() => {
             total_price += Number($(this).data('seat-price'))
         })
-        $('#total-price').text(`Total: ₴ ${(total_price/100).toFixed(2)}`)
+        $('#total-price').text(`Total: ₴ ${(total_price / 100).toFixed(2)}`)
         $('#total-price-row').collapse('show')
     } else {
         $('#btn-pay').hide()
@@ -240,10 +237,10 @@ $('.checkbox-seat').on('change', function(){
     }
 })
 
-$('#btn-pay').on('click', ()=>{
+$('#btn-pay').on('click', () => {
     $('#spinner-pay').show()
 
-    seats = $('.checkbox-seat:checked').map(function(){
+    seats = $('.checkbox-seat:checked').map(function() {
         return $(this).data('seat-id')
     }).get()
 
@@ -261,7 +258,13 @@ $('#btn-pay').on('click', ()=>{
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.ok) {
+            return response.json()
+        } else {
+            $('#modal-signup').modal('show');
+        }
+    })
     .then(data => {
         window.location.href = data.url;
     })
