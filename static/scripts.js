@@ -129,6 +129,42 @@ function validateLoginForm() {
     return false
 }
 
+function validateSendPasswordResetForm() {
+    const array = $("#form-send-password-reset").serializeArray();
+    const json = {};
+    $.each(array, function () {
+        json[this.name] = this.value || "";
+    });
+
+    fetch(url_send_password_reset, {
+        method: 'POST',
+        body: JSON.stringify(json),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json()
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.msg);
+            });
+        }
+    })
+    .then(data => {
+        $('#message-send-password-reset-success').text(data.msg);
+        $('#message-send-password-reset-success').show();
+        $('#message-send-password-reset-error').hide();
+    })
+    .catch(error => {
+        $('#message-send-password-reset-error').text(error.message);
+        $('#message-send-password-reset-error').show();
+        $('#message-send-password-reset-success').hide();
+    });
+    return false
+}
+
 function validateChangePasswordForm() {
     if ($('#password-new').val() != $('#password-confirm').val()) {
         $('#message-changepassword-error').text("Passwords don't match")
@@ -210,6 +246,12 @@ $('#link-login-modal').on('click', () => {
 $('#link-signup-modal').on('click', () => {
     $('#modal-login').modal('hide');
     $('#modal-signup').modal('show');
+    return false;
+})
+
+$('#link-reset-password-modal').on('click', () => {
+    $('#modal-login').modal('hide');
+    $('#modal-send-password-reset').modal('show');
     return false;
 })
 

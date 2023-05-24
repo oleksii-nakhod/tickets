@@ -3,8 +3,7 @@ from database.mysql_implementation.user import *
 import random
 import os
 import string
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Asm, GroupId
+from service.mail import *
 
 class AuthService:
     def login(self, email, password):
@@ -45,21 +44,17 @@ class AuthService:
                         confirm_email_token=confirm_email_token
                     ), password)
                     
-                    message = Mail(
-                        from_email=os.getenv('FROM_EMAIL'),
-                        to_emails=email
-                    )
-                    message.dynamic_template_data = {
+                    dynamic_template_data = {
                         'name': name,
                         'confirm_url': f'{os.getenv("DOMAIN")}{url_for("confirm_account")}?id={user_id}&token={confirm_email_token}'
                     }
-                    message.asm = Asm(GroupId(int(os.getenv('SENDGRID_ASM_GROUP'))))
-                    message.template_id = 'd-db51f82946674203bf8430c983f4c9e6'
-                    try:
-                        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
-                        response = sg.send(message)
-                    except Exception as e:
-                        print(e.message)
+                    
+                    MailService().send(
+                        to_email=email,
+                        template_id='d-db51f82946674203bf8430c983f4c9e6',
+                        dynamic_template_data=dynamic_template_data
+                    )
+                    
                     return {'msg': 'Check your inbox for a confirmation email'}, 201
         except Exception as e:
             print(e)
@@ -90,3 +85,33 @@ class AuthService:
     def logout(self):
         session.clear()
         return redirect(url_for('index'))
+    
+    
+    def send_password_reset(self, email):
+        try:
+            engine = current_app.config['engine']
+            user_table = current_app.config['tables']['user']
+            with Session(engine) as s:
+                user = user_table.find(s, email)
+                if user:
+                    reset_password_token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+                    user_table.update(s, user.id, {
+                        'reset_password_token': reset_password_token
+                    })
+                    dynamic_template_data = {
+                        'password_reset_url': f'{os.getenv("DOMAIN")}{url_for("reset_password")}?id={user.id}&token={reset_password_token}'
+                    }
+                    MailService().send(
+                        to_email=email,
+                        template_id='d-99786b505b7b4c249bd45efde7c61000',
+                        dynamic_template_data=dynamic_template_data
+                    )
+                    return {'msg': 'Check your inbox for password reset instructions'}, 200
+                else:
+                    return {'msg': 'This email is not registered'}, 404
+        except Exception as e:
+            print(e)
+        return {'msg': 'server error'}, 500
+
+    def reset_password(self, password):
+        return {'msg': 'success'}, 200

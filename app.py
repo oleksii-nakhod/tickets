@@ -82,6 +82,23 @@ def logout():
     return result
 
 
+@app.route("/send-password-reset", methods=['POST'])
+def send_password_reset():
+    result = SendPasswordResetCommand(request).execute()
+    return result
+
+
+@app.route("/reset-password", methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'GET':
+        return render_template("reset_password.html")
+        
+    if request.method == 'POST':
+        result = ResetPasswordCommand(request).execute()
+    
+    return result
+
+
 @app.route("/profile", methods=['GET', 'PATCH'])
 def profile():
     if request.method == 'GET':

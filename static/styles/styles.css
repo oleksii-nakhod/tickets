@@ -74,3 +74,8 @@ a {
 #spinner-pay {
     margin: 0 10px 0 0
 }
+
+#btn-login, #btn-signup {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}

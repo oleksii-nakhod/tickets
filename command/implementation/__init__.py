@@ -13,3 +13,5 @@ from command.implementation.complete_order import *
 from command.implementation.verify_order import *
 from command.implementation.create_qrcode import *
 from command.implementation.confirm_account import *
+from command.implementation.send_password_reset import *
+from command.implementation.reset_password import *

@@ -105,11 +105,40 @@
                             <label for="input-login-password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="input-login-password" name="password" required>
                         </div>
+                        <a id="link-reset-password-modal" href="#">Forgot your password?</a>
                         <div class="alert alert-warning collapse" id="message-login-error">
                             Error
                         </div>
+                        <div class="alert alert-success collapse" id="message-login-success">
+                            Success
+                        </div>
                         <button type="submit" class="btn btn-primary w-100" id="btn-login">Log in</button>
                         <p>Don't have an account? <a id="link-signup-modal" href="">Sign up</a></p>
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal-send-password-reset" tabindex="-1" aria-labelledby="modal-send-password-reset-label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-send-password-reset-label">Reset password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-send-password-reset" onsubmit="return validateSendPasswordResetForm();">
+                        <div class="mb-3">
+                            <label for="input-send-password-reset-email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="input-send-password-reset-email" name="email" required>
+                        </div>
+                        <div class="alert alert-success collapse" id="message-send-password-reset-success">
+                            Success
+                        </div>
+                        <div class="alert alert-warning collapse" id="message-send-password-reset-error">
+                            Error
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="btn-send-password-reset">Reset password</button>
                     </form>
                 </div>
                 </div>
@@ -126,6 +155,8 @@
         const url_qrcode = {{ url_for("create_qrcode")|tojson }}
         const url_profile = {{ url_for("profile")|tojson }}
         const url_confirm = {{ url_for("confirm_account")|tojson }}
+        const url_send_password_reset = {{ url_for("send_password_reset")|tojson }}
+        const url_reset_password = {{ url_for("reset_password")|tojson }}
     </script>
 </body>
 </html>

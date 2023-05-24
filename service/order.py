@@ -17,8 +17,7 @@ import os
 import qrcode
 from dotenv import load_dotenv
 import pdfkit
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (Mail, Attachment, FileContent, FileName, FileType, Disposition, Asm, GroupId)
+from service.mail import *
 import base64
 
 class OrderService:
@@ -118,7 +117,7 @@ class OrderService:
         
         ticket_ids = []
         attachments = []
-        to_email = None
+        user_email = None
         user_id = None
         for item in checkout_session['line_items']['data']:
             product = stripe.Product.retrieve(
@@ -179,27 +178,17 @@ class OrderService:
                     Disposition('attachment')
                 )
                 attachments.append(attachedFile)
-
-        with Session(engine) as s:
-            user = user_table.read
-        message = Mail(
-            from_email=os.getenv('FROM_EMAIL'),
-            to_emails=user_email
-        )
-        message.dynamic_template_data = {
+        dynamic_template_data = {
             'name': user_name,
             'order_url': f'{os.getenv("DOMAIN")}{url_for("orders")}'
         }
-        message.asm = Asm(GroupId(int(os.getenv('SENDGRID_ASM_GROUP'))))
-        message.template_id = 'd-dfac0b55f330431bb84397dabfdf1e9e'
-        
-        message.attachment = attachments
-        try:
-            sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
-            response = sg.send(message)
-        except Exception as e:
-            print(e.message)
-        return {'msg': 'success'}, 200
+        response = MailService().send(
+            to_email=user_email,
+            template_id='d-dfac0b55f330431bb84397dabfdf1e9e',
+            dynamic_template_data=dynamic_template_data,
+            attachments=attachments
+        )
+        return response
     
     def verify(self, id, token):
         engine = current_app.config['engine']
