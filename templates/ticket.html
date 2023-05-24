@@ -1,0 +1,44 @@
+<h1>Ticket</h1>
+<table>
+    <tbody>
+        <tr>
+            <th>#</th>
+            <td>{{ data['ticket']['id'] }}</td>
+            <td rowspan="9">
+                <img src="data:image/png;base64, {{ data['ticket']['qrcode'] }}" alt="">
+            </td>
+        </tr>
+        <tr>
+            <th>Train</th>
+            <td>{{ data['ticket']['train_name'] }}</td>
+        </tr>
+        <tr>
+            <th>Carriage</th>
+            <td>{{ data['ticket']['carriage_num'] }}</td>
+        </tr>
+        <tr>
+            <th>Seat</th>
+            <td>{{ data['ticket']['seat_num'] }}</td>
+        </tr>
+        <tr>
+            <th>From</th>
+            <td>{{ data['ticket']['station_start_name'] }}</td>
+        </tr>
+        <tr>
+            <th>To</th>
+            <td>{{ data['ticket']['station_end_name'] }}</td>
+        </tr>
+        <tr>
+            <th>Depart</th>
+            <td>{{ data['ticket']['time_dep'] }}</td>
+        </tr>
+        <tr>
+            <th>Arrive</th>
+            <td>{{ data['ticket']['time_arr'] }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ data['ticket']['user_email'] }}</td>
+        </tr>
+    </tbody>
+</tab>

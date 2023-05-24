@@ -19,9 +19,14 @@ pip install -r requirements.txt
 ```
 mysql> source init_database.sql
 ```
-3. Register a [Stripe](https://dashboard.stripe.com) developer account to get an API and endpoint keys.
-4. Rename the file `.env.example` to `.env`, replace sample environment variables.
-5. Start the server.
+3. Install `wkhtmltopdf`
+```
+sudo apt install -y wkhtmltopdf
+```
+4. Register a [Stripe](https://dashboard.stripe.com) developer account to get an API and endpoint keys.
+5. Register a [SendGrid](https://app.sendgrid.com) developer account to get an API key.
+6. Rename the file `.env.example` to `.env`, replace sample environment variables.
+7. Start the server.
 ```
 python app.py
 ```

@@ -16,6 +16,10 @@ import string
 import os
 import qrcode
 from dotenv import load_dotenv
+import pdfkit
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (Mail, Attachment, FileContent, FileName, FileType, Disposition, Asm, GroupId)
+import base64
 
 class OrderService:
     def read(self):
@@ -111,6 +115,11 @@ class OrderService:
             checkout_session_id,
             expand=['line_items']
         )
+        
+        ticket_ids = []
+        attachments = []
+        to_email = None
+        user_id = None
         for item in checkout_session['line_items']['data']:
             product = stripe.Product.retrieve(
                 item['price']['product']
@@ -119,13 +128,77 @@ class OrderService:
             engine = current_app.config['engine']
             ticket_table = current_app.config['tables']['ticket']
             with Session(engine) as s:
-                ticket_table.create(s, Ticket(
+                ticket_id = ticket_table.create(s, Ticket(
                     user_id=metadata['user_id'],
                     seat_id=metadata['seat_id'],
                     trip_station_start_id=metadata['station_start_id'],
                     trip_station_end_id=metadata['station_end_id'],
                     token=''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
                 ))
+                ticket_ids.append(ticket_id)
+        engine = current_app.config['engine']
+        user_table = current_app.config['tables']['user']
+        ticket_table = current_app.config['tables']['ticket']
+        trip_station_table = current_app.config['tables']['trip_station']
+        station_table = current_app.config['tables']['station']
+        for id in ticket_ids:
+            with Session(engine) as s:
+                ticket_info = ticket_table.info(s, id)
+                trip_station_start = trip_station_table.read(s, ticket_info[4])
+                trip_station_end = trip_station_table.read(s, ticket_info[5])
+                station_start = station_table.read(s, trip_station_start.id)
+                station_end = station_table.read(s, trip_station_end.id)
+                ticket_id = ticket_info[0]
+                qrcode = self.create_qrcode(ticket_id, bypass_verification=True)
+                data = {'status': 'valid',
+                    'ticket': {
+                        'id': ticket_id,
+                        'train_name': ticket_info[1],
+                        'carriage_num': ticket_info[2],
+                        'seat_num': ticket_info[3],
+                        'station_start_name': station_start.name,
+                        'station_end_name': station_end.name,
+                        'time_dep': trip_station_start.time_dep,
+                        'time_arr': trip_station_end.time_arr,
+                        'user_email': ticket_info[6],
+                        'qrcode': qrcode
+                    }}
+                user_email = ticket_info[6]
+                user_name = ticket_info[7]
+                pdfkit.from_string(render_template('ticket.html', data=data), f'ticket-{ticket_id}.pdf', css='static/styles/ticket.css')
+                with open(f'ticket-{ticket_id}.pdf', 'rb') as f:
+                    data = f.read()
+                    f.close()
+                    os.remove(f'ticket-{ticket_id}.pdf')
+                
+                encoded_file = base64.b64encode(data).decode()
+                attachedFile = Attachment(
+                    FileContent(encoded_file),
+                    FileName(f'ticket-{ticket_id}.pdf'),
+                    FileType('application/pdf'),
+                    Disposition('attachment')
+                )
+                attachments.append(attachedFile)
+
+        with Session(engine) as s:
+            user = user_table.read
+        message = Mail(
+            from_email=os.getenv('FROM_EMAIL'),
+            to_emails=user_email
+        )
+        message.dynamic_template_data = {
+            'name': user_name,
+            'order_url': f'{os.getenv("DOMAIN")}{url_for("orders")}'
+        }
+        message.asm = Asm(GroupId(int(os.getenv('SENDGRID_ASM_GROUP'))))
+        message.template_id = 'd-dfac0b55f330431bb84397dabfdf1e9e'
+        
+        message.attachment = attachments
+        try:
+            sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
+            response = sg.send(message)
+        except Exception as e:
+            print(e.message)
         return {'msg': 'success'}, 200
     
     def verify(self, id, token):
@@ -157,20 +230,25 @@ class OrderService:
                     }}
         return render_template('verify.html', data=data)
     
-    def create_qrcode(self, ticket_id):
-        if not 'logged_in' in session or not session['logged_in']:
+    def create_qrcode(self, ticket_id, bypass_verification=False):
+        if not bypass_verification and (not 'logged_in' in session or not session['logged_in']):
             return redirect(url_for('index'))
         engine = current_app.config['engine']
         ticket_table = current_app.config['tables']['ticket']
         with Session(engine) as s:
             ticket = ticket_table.read(s, ticket_id)
             public_url = current_app.config['public_url']
-            if ticket.user_id != session['id']:
+            if not bypass_verification and ticket.user_id != session['id']:
                 return redirect(url_for('index'))
             img = qrcode.make(f"{public_url}{url_for('verify')}?id={ticket_id}&token={ticket.token}")
             img_path = f'qrcode-{ticket_id}.png'
             img.save(img_path)
-            response = send_file(img_path, mimetype='image/png')
+            if bypass_verification:
+                with open(img_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read()).decode()
+                    response = encoded_string
+            else:
+                response = send_file(img_path, mimetype='image/png')
             @after_this_request
             def remove_file(response):
                 try:

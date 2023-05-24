@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from connection import *
 from database import *
 from command import *
+import pdfkit
 
 load_dotenv()
 

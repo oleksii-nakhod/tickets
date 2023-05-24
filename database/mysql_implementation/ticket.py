@@ -19,8 +19,9 @@ class MysqlTicket(ITicket):
     def create(self, session, ticket):
         vals = (ticket.user_id, ticket.seat_id, ticket.trip_station_start_id, ticket.trip_station_end_id, ticket.token)
         stmt = insert(Ticket).values(user_id=ticket.user_id, seat_id=ticket.seat_id, trip_station_start_id=ticket.trip_station_start_id, trip_station_end_id=ticket.trip_station_end_id, token=ticket.token)
-        session.execute(stmt)
+        result = session.execute(stmt).inserted_primary_key[0]
         session.commit()
+        return result
 
     def find(self, session, user_id):
         stmt = select(Ticket).where(Ticket.user_id == user_id)
@@ -35,7 +36,8 @@ class MysqlTicket(ITicket):
             Seat.num.label('seat_num'),
             Ticket.trip_station_start_id.label('trip_station_start_id'),
             Ticket.trip_station_end_id.label('trip_station_end_id'),
-            User.email.label('user_email')
+            User.email.label('user_email'),
+            User.name.label('user_name')
         ).join(User, User.id == Ticket.user_id).join(Seat, Seat.id == Ticket.seat_id).join(Carriage, Carriage.id == Seat.carriage_id).join(Train, Train.id == Carriage.train_id).filter(
             Ticket.id == id
         )

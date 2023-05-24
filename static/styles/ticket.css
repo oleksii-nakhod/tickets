@@ -1,0 +1,41 @@
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+th, td {
+    text-align: left;
+}
+
+tr {
+    border: 1px solid #333;
+}
+
+table {
+    font-size: 24px;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+h1 {
+    font-size: 36px;
+    text-align: center;
+}
+
+img {
+    width: 75%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#logo {
+    height: 48px;
+    width: auto;
+    margin: 0px 5px 5px 0px;
+}
+
+.navbar-brand {
+    font-size: 24px;
+}
