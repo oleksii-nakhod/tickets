@@ -59,23 +59,24 @@ class SearchService:
             data['depart_date'] = datetime.datetime.strptime(depart_date, '%Y-%m-%d').strftime('%a, %b %d %Y')
         return render_template('search.html', data=data)
     
-    def search_seats(self, trip, ctype, from_station, to_station):
+    def search_seats(self, trip_id, ctype, from_station, to_station):
         engine = current_app.config['engine']
+        trip_table = current_app.config['tables']['trip']
         train_table = current_app.config['tables']['train']
         seat_table = current_app.config['tables']['seat']
         trip_station_table = current_app.config['tables']['trip_station']
         station_table = current_app.config['tables']['station']
         carriage_type_table = current_app.config['tables']['carriage_type']
         with Session(engine) as s:
-            train = train_table.find(s, trip)
-            carriages = seat_table.find(s, trip, train.id, ctype, from_station, to_station)
+            train = train_table.find(s, trip_id)
+            carriages = seat_table.find(s, trip_id, train.id, ctype, from_station, to_station)
             station_start = station_table.read(s, from_station)
             station_end = station_table.read(s,to_station)
-            trip_extra_info = trip_station_table.find(s, trip, from_station, to_station)
+            trip_extra_info = trip_station_table.info(s, trip_id, from_station, to_station)
             carriage_type = carriage_type_table.read(s, ctype)
             data = {
                 'carriages': carriages,
-                'trip_id': trip,
+                'trip_id': trip_id,
                 'train_id': train.id,
                 'train_name': train.name,
                 'station_start_name': station_start.name,

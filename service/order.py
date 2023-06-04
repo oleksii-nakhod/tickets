@@ -35,8 +35,8 @@ class OrderService:
                 ticket_info = ticket_table.info(s, ticket.id)
                 trip_station_start = trip_station_table.read(s, ticket_info[4])
                 trip_station_end = trip_station_table.read(s, ticket_info[5])
-                station_start = station_table.read(s, trip_station_start.id)
-                station_end = station_table.read(s, trip_station_end.id)
+                station_start = station_table.read(s, trip_station_start.station_id)
+                station_end = station_table.read(s, trip_station_end.station_id)
                 data['tickets'].append({
                     'id': ticket_info[0],
                     'station_start_name': station_start.name,
@@ -64,10 +64,10 @@ class OrderService:
         with Session(engine) as s:
             station_start = station_table.read(s, station_start_id)
             station_end = station_table.read(s, station_end_id)
+            trip_station_start = trip_station_table.find(s, trip_id, station_start_id)
+            trip_station_end = trip_station_table.find(s, trip_id, station_end_id)
             trip = trip_table.read(s, trip_id)
             train = train_table.read(s, trip.train_id)
-            trip_extra_info = trip_station_table.find(s, 
-                trip.id, station_start_id, station_end_id)
             line_items = []
             for seat_id in seats:
                 seat = seat_table.read(s, seat_id)
@@ -78,14 +78,14 @@ class OrderService:
                 line_items.append({
                     'price_data': {
                         'currency': 'uah',
-                        'unit_amount': trip_extra_info[2]*carriage_type.price_mod,
+                        'unit_amount': (trip_station_end.price - trip_station_start.price) * carriage_type.price_mod,
                         'product_data': {
                             'name': name,
                             'metadata': {
                                 'user_id': user_id,
                                 'seat_id': seat.id,
-                                'station_start_id': station_start.id,
-                                'station_end_id': station_end.id
+                                'trip_station_start_id': trip_station_start.id,
+                                'trip_station_end_id': trip_station_end.id
                             }
                         },
                     },
@@ -130,8 +130,8 @@ class OrderService:
                 ticket_id = ticket_table.create(s, Ticket(
                     user_id=metadata['user_id'],
                     seat_id=metadata['seat_id'],
-                    trip_station_start_id=metadata['station_start_id'],
-                    trip_station_end_id=metadata['station_end_id'],
+                    trip_station_start_id=metadata['trip_station_start_id'],
+                    trip_station_end_id=metadata['trip_station_end_id'],
                     token=''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
                 ))
                 ticket_ids.append(ticket_id)
@@ -145,8 +145,8 @@ class OrderService:
                 ticket_info = ticket_table.info(s, id)
                 trip_station_start = trip_station_table.read(s, ticket_info[4])
                 trip_station_end = trip_station_table.read(s, ticket_info[5])
-                station_start = station_table.read(s, trip_station_start.id)
-                station_end = station_table.read(s, trip_station_end.id)
+                station_start = station_table.read(s, trip_station_start.station_id)
+                station_end = station_table.read(s, trip_station_end.station_id)
                 ticket_id = ticket_info[0]
                 qrcode = self.create_qrcode(ticket_id, bypass_verification=True)
                 data = {'status': 'valid',
@@ -203,8 +203,8 @@ class OrderService:
                 ticket_info = ticket_table.info(s, id)
                 trip_station_start = trip_station_table.read(s, ticket_info[4])
                 trip_station_end = trip_station_table.read(s, ticket_info[5])
-                station_start = station_table.read(s, trip_station_start.id)
-                station_end = station_table.read(s, trip_station_end.id)
+                station_start = station_table.read(s, trip_station_start.station_id)
+                station_end = station_table.read(s, trip_station_end.station_id)
                 data = {'status': 'valid',
                     'ticket': {
                         'id': ticket_info[0],

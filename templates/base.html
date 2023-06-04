@@ -21,7 +21,7 @@
 <body>
     <nav class="navbar navbar-expand-md">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static',filename='resources/train.png') }}" id="logo"></img>tickets</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static',filename='resources/train.png') }}" id="logo">tickets</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
@@ -51,102 +51,100 @@
             </div>
         </div>
     </nav>
+    <div class="modal fade" id="modal-signup" tabindex="-1" aria-labelledby="modal-signup-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-signup-label">Sign up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-signup" onsubmit="return validateSignupForm();">
+                    <div class="mb-3">
+                        <label for="input-signup-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="input-signup-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-signup-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-signup-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-signup-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="input-signup-password" name="password" required>
+                    </div>
+                    <div class="alert alert-warning collapse" id="message-signup-error">
+                        Error
+                    </div>
+                    <div class="alert alert-success collapse" id="message-signup-success">
+                        Success
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-signup">Sign up</button>
+                    <p>Already have an account? <a id="link-login-modal" href="">Log in</a></p>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-login-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-login-label">Log in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-login" onsubmit="return validateLoginForm();">
+                    <div class="mb-3">
+                        <label for="input-login-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-login-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-login-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="input-login-password" name="password" required>
+                    </div>
+                    <a id="link-reset-password-modal" href="#">Forgot your password?</a>
+                    <div class="alert alert-warning collapse" id="message-login-error">
+                        Error
+                    </div>
+                    <div class="alert alert-success collapse" id="message-login-success">
+                        Success
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-login">Log in</button>
+                    <p>Don't have an account? <a id="link-signup-modal" href="">Sign up</a></p>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-send-password-reset" tabindex="-1" aria-labelledby="modal-send-password-reset-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-send-password-reset-label">Reset password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-send-password-reset" onsubmit="return validateSendPasswordResetForm();">
+                    <div class="mb-3">
+                        <label for="input-send-password-reset-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-send-password-reset-email" name="email" required>
+                    </div>
+                    <div class="alert alert-success collapse" id="message-send-password-reset-success">
+                        Success
+                    </div>
+                    <div class="alert alert-warning collapse" id="message-send-password-reset-error">
+                        Error
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-send-password-reset">Reset password</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <main>
     {% block content %}
     {% endblock %}
-    <main class="container-fluid" id="home-content">
-        <div class="modal fade" id="modal-signup" tabindex="-1" aria-labelledby="modal-signup-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-signup-label">Sign up</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form-signup" onsubmit="return validateSignupForm();">
-                        <div class="mb-3">
-                            <label for="input-signup-name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="input-signup-name" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="input-signup-email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="input-signup-email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="input-signup-password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="input-signup-password" name="password" required>
-                        </div>
-                        <div class="alert alert-warning collapse" id="message-signup-error">
-                            Error
-                        </div>
-                        <div class="alert alert-success collapse" id="message-signup-success">
-                            Success
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" id="btn-signup">Sign up</button>
-                        <p>Already have an account? <a id="link-login-modal" href="">Log in</a></p>
-                    </form>
-                </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-login-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-login-label">Log in</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form-login" onsubmit="return validateLoginForm();">
-                        <div class="mb-3">
-                            <label for="input-login-email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="input-login-email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="input-login-password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="input-login-password" name="password" required>
-                        </div>
-                        <a id="link-reset-password-modal" href="#">Forgot your password?</a>
-                        <div class="alert alert-warning collapse" id="message-login-error">
-                            Error
-                        </div>
-                        <div class="alert alert-success collapse" id="message-login-success">
-                            Success
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" id="btn-login">Log in</button>
-                        <p>Don't have an account? <a id="link-signup-modal" href="">Sign up</a></p>
-                    </form>
-                </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="modal-send-password-reset" tabindex="-1" aria-labelledby="modal-send-password-reset-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-send-password-reset-label">Reset password</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form-send-password-reset" onsubmit="return validateSendPasswordResetForm();">
-                        <div class="mb-3">
-                            <label for="input-send-password-reset-email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="input-send-password-reset-email" name="email" required>
-                        </div>
-                        <div class="alert alert-success collapse" id="message-send-password-reset-success">
-                            Success
-                        </div>
-                        <div class="alert alert-warning collapse" id="message-send-password-reset-error">
-                            Error
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" id="btn-send-password-reset">Reset password</button>
-                    </form>
-                </div>
-                </div>
-            </div>
-        </div>
     </main>
-    <footer class="container-fluid">
-    </footer>
     <script>
         const url_stations = {{ url_for("stations")|tojson }}
         const url_signup = {{ url_for("signup")|tojson }}

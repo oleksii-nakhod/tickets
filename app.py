@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from waitress import serve
 from dotenv import load_dotenv
-from connection import *
 from database import *
 from command import *
 import pdfkit

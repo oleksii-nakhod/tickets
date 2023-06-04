@@ -12,11 +12,16 @@ class MysqlTripStation(ITripStation):
         result = session.scalars(stmt).first()
         return result
     
-    def find(self, session, trip_id, station_start, station_end):
+    def info(self, session, trip_id, station_start, station_end):
         t1 = aliased(TripStation)
         t2 = aliased(TripStation)
         stmt = select(t1.time_dep, t2.time_arr, t2.price - t1.price).select_from(join(t1, t2, t1.trip_id == t2.trip_id)).where(and_(t1.station_id == station_start, t2.station_id == station_end, t1.trip_id == trip_id, t2.trip_id == trip_id))
         result = session.execute(stmt).first()
+        return result
+    
+    def find(self, session, trip_id, station_id):
+        stmt = select(TripStation).where(TripStation.trip_id == trip_id, TripStation.station_id == station_id)
+        result = session.scalars(stmt).first()
         return result
     
 
