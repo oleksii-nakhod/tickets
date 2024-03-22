@@ -8,3 +8,4 @@ waitress==2.1.2
 sqlalchemy==2.0.12
 sendgrid==6.10.0
 pdfkit==1.0.0
+Werkzeug==2.2.2
