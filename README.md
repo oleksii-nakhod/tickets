@@ -1,6 +1,6 @@
 # Railroad System
 ## Quickstart
-This code is hosted [here](https://tickets.wartexnik.com).  
+This code is hosted [here](https://tickets.nakhod.me).  
 To test the main functionality, follow these steps:
 1. Sign up for an account.
 2. Search for Kyiv-Dnipro trains on 27.03.2023.
@@ -12,7 +12,7 @@ To test the main functionality, follow these steps:
 To host the code yourself, follow these steps:
 1. Clone the repository and install the dependencies.
 ```
-git clone https://github.com/konovaliuk/Nakhod_Railroad.git
+git clone https://github.com/oleksii-nakhod/tickets.git
 pip install -r requirements.txt
 ```
 2. Initialize a database. For MySQL, you can use the [sample file](init_database.sql).
@@ -30,3 +30,5 @@ sudo apt install -y wkhtmltopdf
 ```
 python app.py
 ```
+## Acknowledgements
+- Icons from [Flaticon](https://www.flaticon.com/authors/freepik)
