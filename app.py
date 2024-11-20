@@ -4,13 +4,14 @@ from dotenv import load_dotenv
 from database import *
 from command import *
 import pdfkit
+from urllib.parse import quote_plus
 
 load_dotenv()
 
 public_url = f"{os.getenv('DOMAIN')}"
 
 engine = create_engine(
-    f"{os.getenv('DATABASE_TYPE')}+{os.getenv('DATABASE_API')}://{os.getenv('USER')}:{os.getenv('PASSWORD')}@{os.getenv('HOST')}/{os.getenv('DATABASE')}",
+    f"{os.getenv('DATABASE_TYPE')}+{os.getenv('DATABASE_API')}://{os.getenv('USER')}:{quote_plus(os.getenv('PASSWORD'))}@{os.getenv('HOST')}/{os.getenv('DATABASE')}",
     pool_size=5
 )
 

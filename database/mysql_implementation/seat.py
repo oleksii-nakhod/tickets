@@ -18,7 +18,7 @@ class MysqlSeat(ISeat):
     
     def find(self, session, trip, train, ctype, from_station, to_station):
         subquery_carriage = select(Carriage.id).filter(Carriage.carriage_type_id == ctype, Carriage.train_id == (select(Trip.train_id).filter(Trip.id == trip).scalar_subquery()))
-        subquery_trip_station = select(TripStation.id).filter(TripStation.trip_id == 1)
+        subquery_trip_station = select(TripStation.id).filter(TripStation.trip_id == trip)
 
         stmt = select(
             Seat.carriage_id,
