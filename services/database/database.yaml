@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: database
+        image: wartexnik/database:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: DATABASE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: database-config
+              key: DATABASE_TYPE
+        - name: DATABASE_API
+          valueFrom:
+            configMapKeyRef:
+              name: database-config
+              key: DATABASE_API
+        - name: HOST
+          valueFrom:
+            configMapKeyRef:
+              name: database-config
+              key: HOST
+        - name: DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: database-config
+              key: DATABASE
+        - name: USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: username
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+spec:
+  selector:
+    app: database
+  ports:
+  - port: 5001
+    targetPort: 5001
+  type: LoadBalancer

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Railroad Tickets</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Red+Rose:wght@300;400;500;600;700&family=Rowdies:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/styles.css') }}">
+
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='resources/train.png') }}">
+</head>
+<body class="d-flex flex-column h-100">
+    <nav class="navbar navbar-expand-md">
+        <div class="container-fluid">
+            <a class="navbar-brand fs-4" href="{{ url_for('index') }}"><img src="{{ url_for('static',filename='resources/train.png') }}" id="logo">tickets</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                {% if 'logged_in' in session and session['logged_in'] %}
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ session['name'] }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if session['user_role_id'] == 1 %}
+                    <li><a class="dropdown-item" href="{{ url_for('admin') }}">Admin panel</a></li>
+                    {% endif %}
+                    <li><a class="dropdown-item" href="{{ url_for('orders') }}">My orders</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a class="dropdown-item" href="/logout" id="btn-logout">Log out</a></li>
+                </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-login">Log in</a>
+                </li>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-signup">Sign up</button>
+                {% endif %}
+            </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="modal fade" id="modal-signup" tabindex="-1" aria-labelledby="modal-signup-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-signup-label">Sign up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-signup" onsubmit="return validateSignupForm();">
+                    <div class="mb-3">
+                        <label for="input-signup-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="input-signup-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-signup-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-signup-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-signup-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="input-signup-password" name="password" required>
+                    </div>
+                    <div class="alert alert-warning collapse" id="message-signup-error">
+                        Error
+                    </div>
+                    <div class="alert alert-success collapse" id="message-signup-success">
+                        Success
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-signup">Sign up</button>
+                    <p>Already have an account? <a id="link-login-modal" href="">Log in</a></p>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-login-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-login-label">Log in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-login" onsubmit="return validateLoginForm();">
+                    <div class="mb-3">
+                        <label for="input-login-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-login-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input-login-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="input-login-password" name="password" required>
+                    </div>
+                    <a id="link-reset-password-modal" href="#">Forgot your password?</a>
+                    <div class="alert alert-warning collapse" id="message-login-error">
+                        Error
+                    </div>
+                    <div class="alert alert-success collapse" id="message-login-success">
+                        Success
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-login">Log in</button>
+                    <p>Don't have an account? <a id="link-signup-modal" href="">Sign up</a></p>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-send-password-reset" tabindex="-1" aria-labelledby="modal-send-password-reset-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-send-password-reset-label">Reset password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-send-password-reset" onsubmit="return validateSendPasswordResetForm();">
+                    <div class="mb-3">
+                        <label for="input-send-password-reset-email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="input-send-password-reset-email" name="email" required>
+                    </div>
+                    <div class="alert alert-success collapse" id="message-send-password-reset-success">
+                        Success
+                    </div>
+                    <div class="alert alert-warning collapse" id="message-send-password-reset-error">
+                        Error
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btn-send-password-reset">Reset password</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <main class="flex-shrink-0">
+    {% block content %}
+    {% endblock %}
+    </main>
+    <footer class="mt-auto">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container justify-content-center">
+                <a class="navbar-brand" href="https://nakhod.me">
+                    Oleksii Nakhod
+                </a>
+                <a href="https://github.com/oleksii-nakhod/tickets" target="_blank">
+                    <i class="fab fa-github fa-xl" style="color: white"></i>
+                </a>
+            </div>
+        </nav>
+    </footer>
+    <script>
+        
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ url_for('static',filename='scripts.js') }}"></script>
+</body>
+</html>
