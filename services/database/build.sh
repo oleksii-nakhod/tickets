@@ -6,7 +6,7 @@ kubectl apply -f database.yaml
 
 docker build -t wartexnik/database:latest .
 docker push wartexnik/database:latest
-kubectl rollout restart deployment database mysql
+kubectl rollout restart deployment database
 minikube service database --url
 
 

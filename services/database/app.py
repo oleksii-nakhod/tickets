@@ -5,6 +5,8 @@ from urllib.parse import quote_plus
 import os
 from database import *
 import logging
+import random
+import string
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -270,7 +272,13 @@ def create_user():
     engine = current_app.config['engine']
     with Session(engine) as s:
         data = request.json
-        user = user_table.create(s, data)
+        confirm_email_token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        user = user_table.create(s, User(
+            name=data['name'],
+            email=data['email'],
+            user_role_id=2,
+            confirm_email_token=confirm_email_token
+        ), data['password'])
         return user
 
 @app.route("/users/<id>", methods=['PUT'])

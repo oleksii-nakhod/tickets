@@ -17,7 +17,15 @@ app.secret_key = b'yb4No3!w2NX528'
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    query = request.args.get('q')
+    if query:
+        stations = requests.get(
+            f"{search_service_base_url}/stations",
+            params={'q': query}
+        ).json()
+        return stations
+    else:
+        return render_template("index.html")
 
 @app.route("/search", methods=['GET'])
 def search():
@@ -25,15 +33,14 @@ def search():
     to_station = request.args.get('to')
     depart_date = request.args.get('depart')
     logger.info(f"Search parameters: {from_station}, {to_station}, {depart_date}")
-    response = requests.get(
+    trips = requests.get(
         f"{search_service_base_url}/trips",
         params={
             'from_station': from_station,
             'to_station': to_station,
             'depart_date': depart_date
         }
-    )
-    trips = response.json()
+    ).json()
     return render_template("search.html", data=trips)
 
 @app.route("/seats", methods=['GET'])

@@ -17,9 +17,9 @@ class MysqlUser(IUser):
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
         stmt = insert(User).values(name=user.name, email=user.email, password_hash=password_hash, user_role_id=user.user_role_id, confirm_email_token=user.confirm_email_token)
-        result = session.execute(stmt).inserted_primary_key[0]
+        user = session.execute(stmt).inserted_primary_key[0]
         session.commit()
-        return {}, 201
+        return {"id": user}, 201
 
     def update(self, session, id, fields):
         vals = {}
@@ -38,9 +38,12 @@ class MysqlUser(IUser):
         return {}, 200
             
     def find(self, session, email, password=None):
-        result = None
         stmt = select(User).where(User.email == email)
         user = session.scalars(stmt).first()
-        if (user == None or password == None or bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8'))):
-            result = user
-        return result.to_dict()
+        if not user:
+            return []
+        if not password:
+            return [user.to_dict()]
+        if bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
+            return [user.to_dict()]
+        return []

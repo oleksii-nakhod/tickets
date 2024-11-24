@@ -17,10 +17,13 @@ class MysqlTripStation(ITripStation):
         t2 = aliased(TripStation)
         stmt = select(t1.time_dep, t2.time_arr, t2.price - t1.price).select_from(join(t1, t2, t1.trip_id == t2.trip_id)).where(and_(t1.station_id == station_start, t2.station_id == station_end, t1.trip_id == trip_id, t2.trip_id == trip_id))
         result = session.execute(stmt).first()
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(result)
         return {
-            'time_dep': result.time_dep.isoformat() + 'Z',
-            'time_arr': result.time_arr.isoformat() + 'Z',
-            'price': result.price
+            'time_dep': result[0].isoformat() + 'Z',
+            'time_arr': result[1].isoformat() + 'Z',
+            'price': result[2]
         }
     
     def find(self, session, trip_id, station_id):

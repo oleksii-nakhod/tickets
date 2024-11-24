@@ -1,6 +1,6 @@
 $('#from, #to').autocomplete({
     source: function (request, response) {
-        fetch(`${url_stations}?q=${encodeURIComponent(request.term)}`)
+        fetch(`${url_frontend}?q=${encodeURIComponent(request.term)}`)
         .then(response => response.json())
         .then(data => {
             const mappedData = data.map(item => ({

@@ -14,6 +14,15 @@ database_service_base_url = f'http://{database_service_host}:{database_service_p
 
 app = Flask(__name__)
 
+@app.route("/stations")
+def stations():
+    query = request.args.get('q')
+    stations = requests.get(
+        f"{database_service_base_url}/stations",
+        params={'q': query}
+    ).json()
+    return stations
+
 @app.route("/trips")
 def trips():
     from_station = request.args.get('from_station')
@@ -139,7 +148,7 @@ def seats():
         'carriage_type_id': ctype,
         'carriage_type_name': carriage_type['name'],
         'price': int(trip_extra_info['price'] * carriage_type['price_mod']),
-        'depart_date': trip_extra_info['time_dep'].strftime('%Y-%m-%d'),
+        'depart_date': time_dep.strftime('%Y-%m-%d'),
         'depart_date_pretty': time_dep.strftime('%a, %b %d %Y'),
         'time_dep_pretty': time_dep.strftime('%H:%M'),
         'time_arr_pretty': time_arr.strftime('%H:%M')
