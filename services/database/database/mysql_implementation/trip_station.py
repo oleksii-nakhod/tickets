@@ -29,7 +29,9 @@ class MysqlTripStation(ITripStation):
     def find(self, session, trip_id, station_id):
         stmt = select(TripStation).where(TripStation.trip_id == trip_id, TripStation.station_id == station_id)
         result = session.scalars(stmt).first()
-        return result.to_dict()
+        if result is None:
+            return []
+        return [result.to_dict()]
     
 
     

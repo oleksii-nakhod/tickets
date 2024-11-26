@@ -27,18 +27,14 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
-                {% if 'logged_in' in session and session['logged_in'] %}
+                {% if request.cookies.get('token') %}
                 <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ session['name'] }}
+                    {{ request.cookies.get('user_name', 'Guest') }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    {% if session['user_role_id'] == 1 %}
-                    <li><a class="dropdown-item" href="{{ url_for('admin') }}">Admin panel</a></li>
-                    {% endif %}
                     <li><a class="dropdown-item" href="{{ url_for('orders') }}">My orders</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a class="dropdown-item" href="/logout" id="btn-logout">Log out</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);" id="btn-logout">Log out</a></li>
                 </ul>
                 </li>
                 {% else %}
@@ -158,7 +154,11 @@
         </nav>
     </footer>
     <script>
-        const url_frontend = "{{ url_for('index') }}";
+        const url_index = "{{ url_for('index') }}";
+        const url_login = "{{ url_for('login') }}";
+        const url_signup = "{{ url_for('signup') }}";
+        const url_logout = "{{ url_for('logout') }}";
+        const url_orders = "{{ url_for('orders') }}";
     </script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>

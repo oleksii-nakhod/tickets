@@ -33,7 +33,7 @@ def login():
         return {"msg": "Bad username or password"}, 401
 
     access_token = create_access_token(identity=email)
-    return {"access_token": access_token}, 200
+    return {"access_token": access_token, "user_name": users[0]['name']}, 200
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -57,8 +57,12 @@ def signup():
 @app.route("/verify", methods=["GET"])
 @jwt_required()
 def verify():
-    current_user = get_jwt_identity()
-    return {"logged_in_as": current_user}, 200
+    email = get_jwt_identity()
+    users = requests.get(
+        f"{database_service_base_url}/users",
+        params={"email": email}
+    ).json()
+    return users[0], 200
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=5003)

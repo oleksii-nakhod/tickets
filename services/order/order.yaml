@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+      - name: order
+        image: wartexnik/order:latest
+        ports:
+        - containerPort: 5004
+        envFrom:
+        - secretRef:
+            name: stripe-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5004
+    targetPort: 5004
+    protocol: TCP
+  selector:
+    app: order

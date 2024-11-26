@@ -1,6 +1,6 @@
 $('#from, #to').autocomplete({
     source: function (request, response) {
-        fetch(`${url_frontend}?q=${encodeURIComponent(request.term)}`)
+        fetch(`${url_index}?q=${encodeURIComponent(request.term)}`)
         .then(response => response.json())
         .then(data => {
             const mappedData = data.map(item => ({
@@ -110,15 +110,15 @@ function validateLoginForm() {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => {
+    .then(async response => {
         if (response.ok) {
+            const data = await response.json();
             $('#modal-login').modal('hide');
             $('#message-login-error').hide();
             location.reload();
         } else {
-            return response.json().then(data => {
-                throw new Error(data.msg);
-            });
+            const data = await response.json();
+            throw new Error(data.msg);
         }
     })
     .catch(error => {
@@ -321,5 +321,16 @@ $('.btn-modal-qrcode').on('click', function() {
     .then(blob => {
         img = URL.createObjectURL(blob)
         $('#img-qrcode').attr('src', img)
+    })
+})
+
+$('#btn-logout').on('click', () => {
+    fetch(url_logout, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload();
+        }
     })
 })

@@ -189,10 +189,10 @@ def train(id):
 def trip_stations():
     engine = current_app.config['engine']
     with Session(engine) as s:
-        trip = request.args.get('trip')
-        station = request.args.get('station')
-        if trip:
-            trip_stations = trip_station_table.find(s, trip, station)
+        trip_id = request.args.get('trip_id')
+        station_id = request.args.get('station_id')
+        if trip_id:
+            trip_stations = trip_station_table.find(s, trip_id, station_id)
         else:
             trip_stations = trip_station_table.read_all(s)
         return trip_stations
