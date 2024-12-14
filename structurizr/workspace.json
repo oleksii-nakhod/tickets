@@ -1,0 +1,1103 @@
+{
+  "configuration" : {
+    "scope" : "SoftwareSystem"
+  },
+  "description" : "System context diagram for the train ticketing system",
+  "documentation" : { },
+  "id" : 1,
+  "lastModifiedAgent" : "structurizr-ui",
+  "lastModifiedDate" : "2024-12-14T08:30:40Z",
+  "model" : {
+    "deploymentNodes" : [ {
+      "children" : [ {
+        "description" : "AWS ELB",
+        "environment" : "Production",
+        "id" : "39",
+        "infrastructureNodes" : [ {
+          "description" : "AWS Elastic Load Balancer",
+          "environment" : "Production",
+          "id" : "40",
+          "name" : "Load Balancer",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.loadbalancerdeployment.loadbalancerinfrastructure"
+          },
+          "relationships" : [ {
+            "description" : "Routes traffic to",
+            "destinationId" : "45",
+            "id" : "72",
+            "sourceId" : "40",
+            "tags" : "Relationship",
+            "technology" : "HTTPS"
+          }, {
+            "description" : "Routes traffic to",
+            "destinationId" : "42",
+            "id" : "73",
+            "sourceId" : "40",
+            "tags" : "Relationship",
+            "technology" : "HTTPS"
+          } ],
+          "tags" : "Element,Infrastructure Node,Load Balancer"
+        } ],
+        "instances" : "1",
+        "name" : "Load Balancer",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.loadbalancerdeployment"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "description" : "Kong",
+        "environment" : "Production",
+        "id" : "41",
+        "infrastructureNodes" : [ {
+          "description" : "API Gateway and Rate Limiting",
+          "environment" : "Production",
+          "id" : "42",
+          "name" : "Kong API Gateway",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.apigatewaydeployment.apigatewayinfrastructure"
+          },
+          "relationships" : [ {
+            "description" : "For authentication API calls",
+            "destinationId" : "48",
+            "id" : "74",
+            "sourceId" : "42",
+            "tags" : "Relationship"
+          }, {
+            "description" : "For order API calls",
+            "destinationId" : "51",
+            "id" : "75",
+            "sourceId" : "42",
+            "tags" : "Relationship"
+          }, {
+            "description" : "For search API calls",
+            "destinationId" : "54",
+            "id" : "76",
+            "sourceId" : "42",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Infrastructure Node"
+        } ],
+        "instances" : "1",
+        "name" : "API Gateway",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.apigatewaydeployment"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "children" : [ {
+          "containerInstances" : [ {
+            "containerId" : "6",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "45",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.webappdeploymentcluster.webappdeployment.webappinstance"
+            },
+            "relationships" : [ {
+              "description" : "Makes API calls to",
+              "destinationId" : "48",
+              "id" : "49",
+              "linkedRelationshipId" : "11",
+              "sourceId" : "45",
+              "technology" : "JSON/HTTPS"
+            }, {
+              "description" : "Makes API calls to",
+              "destinationId" : "51",
+              "id" : "52",
+              "linkedRelationshipId" : "15",
+              "sourceId" : "45",
+              "technology" : "JSON/HTTPS"
+            }, {
+              "description" : "Makes API calls to",
+              "destinationId" : "54",
+              "id" : "55",
+              "linkedRelationshipId" : "13",
+              "sourceId" : "45",
+              "technology" : "JSON/HTTPS"
+            } ],
+            "tags" : "Container Instance"
+          } ],
+          "environment" : "Production",
+          "id" : "44",
+          "instances" : "1",
+          "name" : "Docker Container - Web",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.webappdeploymentcluster.webappdeployment"
+          },
+          "tags" : "Element,Deployment Node"
+        } ],
+        "description" : "AWS EC2",
+        "environment" : "Production",
+        "id" : "43",
+        "instances" : "1",
+        "name" : "Web Server Cluster",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.webappdeploymentcluster"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "children" : [ {
+          "containerInstances" : [ {
+            "containerId" : "4",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "48",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.authappdeployment.authappinstance"
+            },
+            "relationships" : [ {
+              "description" : "Publishes user events to",
+              "destinationId" : "58",
+              "id" : "59",
+              "linkedRelationshipId" : "25",
+              "sourceId" : "48"
+            }, {
+              "description" : "Reads from and writes to",
+              "destinationId" : "64",
+              "id" : "65",
+              "linkedRelationshipId" : "20",
+              "sourceId" : "48"
+            } ],
+            "tags" : "Container Instance"
+          } ],
+          "environment" : "Production",
+          "id" : "47",
+          "instances" : "1",
+          "name" : "Docker Container - Auth",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.authappdeployment"
+          },
+          "tags" : "Element,Deployment Node"
+        }, {
+          "containerInstances" : [ {
+            "containerId" : "3",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "51",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.orderappdeployment.orderappinstance"
+            },
+            "relationships" : [ {
+              "description" : "Publishes order events to",
+              "destinationId" : "58",
+              "id" : "61",
+              "linkedRelationshipId" : "23",
+              "sourceId" : "51"
+            }, {
+              "description" : "Reads from and writes to",
+              "destinationId" : "67",
+              "id" : "68",
+              "linkedRelationshipId" : "21",
+              "sourceId" : "51"
+            } ],
+            "tags" : "Container Instance"
+          } ],
+          "environment" : "Production",
+          "id" : "50",
+          "instances" : "1",
+          "name" : "Docker Container - Order",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.orderappdeployment"
+          },
+          "tags" : "Element,Deployment Node"
+        }, {
+          "containerInstances" : [ {
+            "containerId" : "5",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "54",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.searchappdeployment.searchappinstance"
+            },
+            "relationships" : [ {
+              "description" : "Subscribes to order events from",
+              "destinationId" : "58",
+              "id" : "60",
+              "linkedRelationshipId" : "24",
+              "sourceId" : "54"
+            }, {
+              "description" : "Reads from and writes to",
+              "destinationId" : "70",
+              "id" : "71",
+              "linkedRelationshipId" : "22",
+              "sourceId" : "54"
+            } ],
+            "tags" : "Container Instance"
+          } ],
+          "environment" : "Production",
+          "id" : "53",
+          "instances" : "1",
+          "name" : "Docker Container - Search",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster.searchappdeployment"
+          },
+          "tags" : "Element,Deployment Node"
+        } ],
+        "description" : "AWS EC2",
+        "environment" : "Production",
+        "id" : "46",
+        "instances" : "1",
+        "name" : "Application Server Cluster",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.appdeploymentcluster"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "children" : [ {
+          "containerInstances" : [ {
+            "containerId" : "16",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "58",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.5b64f40e-4335-469d-89fa-3872a863ee72.0746a645-44c0-415c-9e8a-ad426651725b.messagebusinstance"
+            },
+            "tags" : "Container Instance"
+          } ],
+          "environment" : "Production",
+          "id" : "57",
+          "instances" : "1",
+          "name" : "Docker Container - RabbitMQ",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.5b64f40e-4335-469d-89fa-3872a863ee72.0746a645-44c0-415c-9e8a-ad426651725b"
+          },
+          "tags" : "Element,Deployment Node"
+        } ],
+        "description" : "AWS EC2",
+        "environment" : "Production",
+        "id" : "56",
+        "instances" : "1",
+        "name" : "Message Queue Cluster",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.5b64f40e-4335-469d-89fa-3872a863ee72"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "children" : [ {
+          "containerInstances" : [ {
+            "containerId" : "17",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "64",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.77a678f0-df17-4bce-867f-d405521925bc.authdbinstance"
+            },
+            "tags" : "Container Instance"
+          } ],
+          "description" : "MySQL RDS",
+          "environment" : "Production",
+          "id" : "63",
+          "instances" : "1",
+          "name" : "Auth Database Primary",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.77a678f0-df17-4bce-867f-d405521925bc"
+          },
+          "tags" : "Element,Deployment Node"
+        }, {
+          "containerInstances" : [ {
+            "containerId" : "18",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "67",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.b754792a-6c0b-433c-929d-ba2c69fa546a.orderdbinstance"
+            },
+            "tags" : "Container Instance"
+          } ],
+          "description" : "MySQL RDS",
+          "environment" : "Production",
+          "id" : "66",
+          "instances" : "1",
+          "name" : "Order Database Primary",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.b754792a-6c0b-433c-929d-ba2c69fa546a"
+          },
+          "tags" : "Element,Deployment Node"
+        }, {
+          "containerInstances" : [ {
+            "containerId" : "19",
+            "deploymentGroups" : [ "Default" ],
+            "environment" : "Production",
+            "id" : "70",
+            "instanceId" : 1,
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.b9bd1c3f-4baf-4468-af04-d2f45c875825.searchdbinstance"
+            },
+            "tags" : "Container Instance"
+          } ],
+          "description" : "MySQL RDS",
+          "environment" : "Production",
+          "id" : "69",
+          "instances" : "1",
+          "name" : "Search Database Primary",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656.b9bd1c3f-4baf-4468-af04-d2f45c875825"
+          },
+          "tags" : "Element,Deployment Node"
+        } ],
+        "description" : "AWS RDS",
+        "environment" : "Production",
+        "id" : "62",
+        "instances" : "1",
+        "name" : "Database Cluster",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.awsdeployment.1915e2be-6bb2-4e0c-b941-416e4f5f2656"
+        },
+        "tags" : "Element,Deployment Node"
+      } ],
+      "environment" : "Production",
+      "id" : "38",
+      "instances" : "1",
+      "name" : "AWS Cloud",
+      "properties" : {
+        "structurizr.dsl.identifier" : "production.awsdeployment"
+      },
+      "tags" : "Element,Deployment Node,Cloud"
+    } ],
+    "people" : [ {
+      "description" : "A customer of the train ticketing company.",
+      "id" : "1",
+      "location" : "Unspecified",
+      "name" : "Train Ticket Buyer",
+      "properties" : {
+        "structurizr.dsl.identifier" : "customer"
+      },
+      "relationships" : [ {
+        "description" : "Searches trains and seats, buys tickets using",
+        "destinationId" : "8",
+        "id" : "28",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Searches trains and seats, buys tickets using",
+        "destinationId" : "6",
+        "id" : "29",
+        "linkedRelationshipId" : "28",
+        "sourceId" : "1",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Searches trains and seats, buys tickets using",
+        "destinationId" : "2",
+        "id" : "30",
+        "linkedRelationshipId" : "28",
+        "sourceId" : "1",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Manages orders and tickets using",
+        "destinationId" : "9",
+        "id" : "31",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Logs in and manages account using",
+        "destinationId" : "7",
+        "id" : "32",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Handles order processing and ticket management",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Order Application",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.orderapp"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "18",
+          "id" : "21",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Publishes order events to",
+          "destinationId" : "16",
+          "id" : "23",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Sends emails using",
+          "destinationId" : "26",
+          "id" : "33",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Processes payments using",
+          "destinationId" : "27",
+          "id" : "35",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,App",
+        "technology" : "Python/Flask"
+      }, {
+        "description" : "Handles user authentication and authorization",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Auth Application",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.authapp"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "17",
+          "id" : "20",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Publishes user events to",
+          "destinationId" : "16",
+          "id" : "25",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,App",
+        "technology" : "Python/Flask"
+      }, {
+        "description" : "Handles train and seat search functionality",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Search Application",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.searchapp"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "19",
+          "id" : "22",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Subscribes to order events from",
+          "destinationId" : "16",
+          "id" : "24",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container,App",
+        "technology" : "Python/Flask"
+      }, {
+        "components" : [ {
+          "description" : "Handles user authentication and authorization UI",
+          "documentation" : { },
+          "id" : "7",
+          "name" : "Auth Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "ticketingsystem.webapp.authcomponent"
+          },
+          "relationships" : [ {
+            "description" : "Makes API calls to",
+            "destinationId" : "4",
+            "id" : "10",
+            "sourceId" : "7",
+            "tags" : "Relationship",
+            "technology" : "JSON/HTTPS"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python/Flask"
+        }, {
+          "description" : "Handles train and seat search UI",
+          "documentation" : { },
+          "id" : "8",
+          "name" : "Search Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "ticketingsystem.webapp.searchcomponent"
+          },
+          "relationships" : [ {
+            "description" : "Makes API calls to",
+            "destinationId" : "5",
+            "id" : "12",
+            "sourceId" : "8",
+            "tags" : "Relationship",
+            "technology" : "JSON/HTTPS"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python/Flask"
+        }, {
+          "description" : "Handles order processing and ticket management UI",
+          "documentation" : { },
+          "id" : "9",
+          "name" : "Order Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "ticketingsystem.webapp.ordercomponent"
+          },
+          "relationships" : [ {
+            "description" : "Makes API calls to",
+            "destinationId" : "3",
+            "id" : "14",
+            "sourceId" : "9",
+            "tags" : "Relationship",
+            "technology" : "JSON/HTTPS"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python/Flask"
+        } ],
+        "description" : "Delivers the static content and single page application.",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "Web Application",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.webapp"
+        },
+        "relationships" : [ {
+          "description" : "Makes API calls to",
+          "destinationId" : "4",
+          "id" : "11",
+          "linkedRelationshipId" : "10",
+          "sourceId" : "6",
+          "technology" : "JSON/HTTPS"
+        }, {
+          "description" : "Makes API calls to",
+          "destinationId" : "5",
+          "id" : "13",
+          "linkedRelationshipId" : "12",
+          "sourceId" : "6",
+          "technology" : "JSON/HTTPS"
+        }, {
+          "description" : "Makes API calls to",
+          "destinationId" : "3",
+          "id" : "15",
+          "linkedRelationshipId" : "14",
+          "sourceId" : "6",
+          "technology" : "JSON/HTTPS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python/Flask"
+      }, {
+        "description" : "Handles asynchronous communication between services",
+        "documentation" : { },
+        "id" : "16",
+        "name" : "Message Bus",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.messagebus"
+        },
+        "tags" : "Element,Container,Queue",
+        "technology" : "RabbitMQ"
+      }, {
+        "description" : "Stores user accounts and authentication data",
+        "documentation" : { },
+        "id" : "17",
+        "name" : "Auth Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.authdb"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "MySQL"
+      }, {
+        "description" : "Stores order and ticket information",
+        "documentation" : { },
+        "id" : "18",
+        "name" : "Order Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.orderdb"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "MySQL"
+      }, {
+        "description" : "Stores train and seat availability data",
+        "documentation" : { },
+        "id" : "19",
+        "name" : "Search Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ticketingsystem.searchdb"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "MySQL"
+      } ],
+      "description" : "Allows customers to search and buy tickets for trains.",
+      "documentation" : { },
+      "id" : "2",
+      "location" : "Unspecified",
+      "name" : "Train Ticketing System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "ticketingsystem"
+      },
+      "relationships" : [ {
+        "description" : "Sends emails using",
+        "destinationId" : "26",
+        "id" : "34",
+        "linkedRelationshipId" : "33",
+        "sourceId" : "2"
+      }, {
+        "description" : "Processes payments using",
+        "destinationId" : "27",
+        "id" : "36",
+        "linkedRelationshipId" : "35",
+        "sourceId" : "2"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "description" : "Sends out emails to customers.",
+      "documentation" : { },
+      "id" : "26",
+      "location" : "Unspecified",
+      "name" : "Email System (SendGrid)",
+      "properties" : {
+        "structurizr.dsl.identifier" : "emailsystem"
+      },
+      "relationships" : [ {
+        "description" : "Sends emails to",
+        "destinationId" : "1",
+        "id" : "37",
+        "sourceId" : "26",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Software System,External System"
+    }, {
+      "description" : "Handles payments for tickets.",
+      "documentation" : { },
+      "id" : "27",
+      "location" : "Unspecified",
+      "name" : "Payment System (Stripe)",
+      "properties" : {
+        "structurizr.dsl.identifier" : "paymentsystem"
+      },
+      "tags" : "Element,Software System,External System"
+    } ]
+  },
+  "name" : "Train Ticketing System",
+  "properties" : {
+    "structurizr.dsl" : "d29ya3NwYWNlICJUcmFpbiBUaWNrZXRpbmcgU3lzdGVtIiAiU3lzdGVtIGNvbnRleHQgZGlhZ3JhbSBmb3IgdGhlIHRyYWluIHRpY2tldGluZyBzeXN0ZW0iIHsKCiAgICAhaWRlbnRpZmllcnMgaGllcmFyY2hpY2FsCgogICAgbW9kZWwgewogICAgICAgIGN1c3RvbWVyID0gcGVyc29uICJUcmFpbiBUaWNrZXQgQnV5ZXIiICJBIGN1c3RvbWVyIG9mIHRoZSB0cmFpbiB0aWNrZXRpbmcgY29tcGFueS4iCiAgICAgICAgCiAgICAgICAgdGlja2V0aW5nU3lzdGVtID0gc29mdHdhcmVTeXN0ZW0gIlRyYWluIFRpY2tldGluZyBTeXN0ZW0iICJBbGxvd3MgY3VzdG9tZXJzIHRvIHNlYXJjaCBhbmQgYnV5IHRpY2tldHMgZm9yIHRyYWlucy4iIHsKICAgICAgICAgICAgb3JkZXJBcHAgPSBjb250YWluZXIgIk9yZGVyIEFwcGxpY2F0aW9uIiAiSGFuZGxlcyBvcmRlciBwcm9jZXNzaW5nIGFuZCB0aWNrZXQgbWFuYWdlbWVudCIgIlB5dGhvbi9GbGFzayIgewogICAgICAgICAgICAgICAgdGFncyAiQXBwIgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICBhdXRoQXBwID0gY29udGFpbmVyICJBdXRoIEFwcGxpY2F0aW9uIiAiSGFuZGxlcyB1c2VyIGF1dGhlbnRpY2F0aW9uIGFuZCBhdXRob3JpemF0aW9uIiAiUHl0aG9uL0ZsYXNrIiB7CiAgICAgICAgICAgICAgICB0YWdzICJBcHAiCiAgICAgICAgICAgIH0KICAgICAgICAgICAgCiAgICAgICAgICAgIHNlYXJjaEFwcCA9IGNvbnRhaW5lciAiU2VhcmNoIEFwcGxpY2F0aW9uIiAiSGFuZGxlcyB0cmFpbiBhbmQgc2VhdCBzZWFyY2ggZnVuY3Rpb25hbGl0eSIgIlB5dGhvbi9GbGFzayIgewogICAgICAgICAgICAgICAgdGFncyAiQXBwIgogICAgICAgICAgICB9CgogICAgICAgICAgICB3ZWJBcHAgPSBjb250YWluZXIgIldlYiBBcHBsaWNhdGlvbiIgIkRlbGl2ZXJzIHRoZSBzdGF0aWMgY29udGVudCBhbmQgc2luZ2xlIHBhZ2UgYXBwbGljYXRpb24uIiAiUHl0aG9uL0ZsYXNrIiB7CiAgICAgICAgICAgICAgICBhdXRoQ29tcG9uZW50ID0gY29tcG9uZW50ICJBdXRoIENvbXBvbmVudCIgIkhhbmRsZXMgdXNlciBhdXRoZW50aWNhdGlvbiBhbmQgYXV0aG9yaXphdGlvbiBVSSIgIlB5dGhvbi9GbGFzayIKICAgICAgICAgICAgICAgIHNlYXJjaENvbXBvbmVudCA9IGNvbXBvbmVudCAiU2VhcmNoIENvbXBvbmVudCIgIkhhbmRsZXMgdHJhaW4gYW5kIHNlYXQgc2VhcmNoIFVJIiAiUHl0aG9uL0ZsYXNrIgogICAgICAgICAgICAgICAgb3JkZXJDb21wb25lbnQgPSBjb21wb25lbnQgIk9yZGVyIENvbXBvbmVudCIgIkhhbmRsZXMgb3JkZXIgcHJvY2Vzc2luZyBhbmQgdGlja2V0IG1hbmFnZW1lbnQgVUkiICJQeXRob24vRmxhc2siCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICMgQ29tcG9uZW50IHJlbGF0aW9uc2hpcHMKICAgICAgICAgICAgICAgIGF1dGhDb21wb25lbnQgLT4gYXV0aEFwcCAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiSlNPTi9IVFRQUyIKICAgICAgICAgICAgICAgIHNlYXJjaENvbXBvbmVudCAtPiBzZWFyY2hBcHAgIk1ha2VzIEFQSSBjYWxscyB0byIgIkpTT04vSFRUUFMiCiAgICAgICAgICAgICAgICBvcmRlckNvbXBvbmVudCAtPiBvcmRlckFwcCAiTWFrZXMgQVBJIGNhbGxzIHRvIiAiSlNPTi9IVFRQUyIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgbWVzc2FnZUJ1cyA9IGNvbnRhaW5lciAiTWVzc2FnZSBCdXMiICJIYW5kbGVzIGFzeW5jaHJvbm91cyBjb21tdW5pY2F0aW9uIGJldHdlZW4gc2VydmljZXMiICJSYWJiaXRNUSIgewogICAgICAgICAgICAgICAgdGFncyAiUXVldWUiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGF1dGhEQiA9IGNvbnRhaW5lciAiQXV0aCBEYXRhYmFzZSIgIlN0b3JlcyB1c2VyIGFjY291bnRzIGFuZCBhdXRoZW50aWNhdGlvbiBkYXRhIiAiTXlTUUwiIHsKICAgICAgICAgICAgICAgIHRhZ3MgIkRhdGFiYXNlIgogICAgICAgICAgICB9CgogICAgICAgICAgICBvcmRlckRCID0gY29udGFpbmVyICJPcmRlciBEYXRhYmFzZSIgIlN0b3JlcyBvcmRlciBhbmQgdGlja2V0IGluZm9ybWF0aW9uIiAiTXlTUUwiIHsKICAgICAgICAgICAgICAgIHRhZ3MgIkRhdGFiYXNlIgogICAgICAgICAgICB9CgogICAgICAgICAgICBzZWFyY2hEQiA9IGNvbnRhaW5lciAiU2VhcmNoIERhdGFiYXNlIiAiU3RvcmVzIHRyYWluIGFuZCBzZWF0IGF2YWlsYWJpbGl0eSBkYXRhIiAiTXlTUUwiIHsKICAgICAgICAgICAgICAgIHRhZ3MgIkRhdGFiYXNlIgogICAgICAgICAgICB9CgogICAgICAgICAgICBhdXRoQXBwIC0+IGF1dGhEQiAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIgogICAgICAgICAgICBvcmRlckFwcCAtPiBvcmRlckRCICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iCiAgICAgICAgICAgIHNlYXJjaEFwcCAtPiBzZWFyY2hEQiAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIgoKICAgICAgICAgICAgb3JkZXJBcHAgLT4gbWVzc2FnZUJ1cyAiUHVibGlzaGVzIG9yZGVyIGV2ZW50cyB0byIKICAgICAgICAgICAgc2VhcmNoQXBwIC0+IG1lc3NhZ2VCdXMgIlN1YnNjcmliZXMgdG8gb3JkZXIgZXZlbnRzIGZyb20iCiAgICAgICAgICAgIGF1dGhBcHAgLT4gbWVzc2FnZUJ1cyAiUHVibGlzaGVzIHVzZXIgZXZlbnRzIHRvIgogICAgICAgIH0KICAgICAgICAKICAgICAgICBlbWFpbFN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJFbWFpbCBTeXN0ZW0gKFNlbmRHcmlkKSIgIlNlbmRzIG91dCBlbWFpbHMgdG8gY3VzdG9tZXJzLiIgewogICAgICAgICAgICB0YWdzICJFeHRlcm5hbCBTeXN0ZW0iCiAgICAgICAgfQogICAgICAgIAogICAgICAgIHBheW1lbnRTeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiUGF5bWVudCBTeXN0ZW0gKFN0cmlwZSkiICJIYW5kbGVzIHBheW1lbnRzIGZvciB0aWNrZXRzLiIgewogICAgICAgICAgICB0YWdzICJFeHRlcm5hbCBTeXN0ZW0iCiAgICAgICAgfQoKICAgICAgICAjIHJlbGF0aW9uc2hpcHMKICAgICAgICBjdXN0b21lciAtPiB0aWNrZXRpbmdTeXN0ZW0ud2ViQXBwLnNlYXJjaENvbXBvbmVudCAiU2VhcmNoZXMgdHJhaW5zIGFuZCBzZWF0cywgYnV5cyB0aWNrZXRzIHVzaW5nIiAiSFRUUFMiCiAgICAgICAgY3VzdG9tZXIgLT4gdGlja2V0aW5nU3lzdGVtLndlYkFwcC5vcmRlckNvbXBvbmVudCAiTWFuYWdlcyBvcmRlcnMgYW5kIHRpY2tldHMgdXNpbmciICJIVFRQUyIKICAgICAgICBjdXN0b21lciAtPiB0aWNrZXRpbmdTeXN0ZW0ud2ViQXBwLmF1dGhDb21wb25lbnQgIkxvZ3MgaW4gYW5kIG1hbmFnZXMgYWNjb3VudCB1c2luZyIgIkhUVFBTIgogICAgICAgIHRpY2tldGluZ1N5c3RlbS5vcmRlckFwcCAtPiBlbWFpbFN5c3RlbSAiU2VuZHMgZW1haWxzIHVzaW5nIgogICAgICAgIHRpY2tldGluZ1N5c3RlbS5vcmRlckFwcCAtPiBwYXltZW50U3lzdGVtICJQcm9jZXNzZXMgcGF5bWVudHMgdXNpbmciCiAgICAgICAgZW1haWxTeXN0ZW0gLT4gY3VzdG9tZXIgIlNlbmRzIGVtYWlscyB0byIKCiAgICAgICAgcHJvZHVjdGlvbiA9IGRlcGxveW1lbnRFbnZpcm9ubWVudCAiUHJvZHVjdGlvbiIgewogICAgICAgICAgICBhd3NEZXBsb3ltZW50ID0gZGVwbG95bWVudE5vZGUgIkFXUyBDbG91ZCIgewogICAgICAgICAgICAgICAgdGFncyAiQ2xvdWQiCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIGxvYWRCYWxhbmNlckRlcGxveW1lbnQgPSBkZXBsb3ltZW50Tm9kZSAiTG9hZCBCYWxhbmNlciIgIkFXUyBFTEIiIHsKICAgICAgICAgICAgICAgICAgICBsb2FkQmFsYW5jZXJJbmZyYXN0cnVjdHVyZSA9IGluZnJhc3RydWN0dXJlTm9kZSAiTG9hZCBCYWxhbmNlciIgIkFXUyBFbGFzdGljIExvYWQgQmFsYW5jZXIiIHsKICAgICAgICAgICAgICAgICAgICAgICAgdGFncyAiTG9hZCBCYWxhbmNlciIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgYXBpR2F0ZXdheURlcGxveW1lbnQgPSBkZXBsb3ltZW50Tm9kZSAiQVBJIEdhdGV3YXkiICJLb25nIiB7CiAgICAgICAgICAgICAgICAgICAgYXBpR2F0ZXdheUluZnJhc3RydWN0dXJlID0gaW5mcmFzdHJ1Y3R1cmVOb2RlICJLb25nIEFQSSBHYXRld2F5IiAiQVBJIEdhdGV3YXkgYW5kIFJhdGUgTGltaXRpbmciCiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgd2ViQXBwRGVwbG95bWVudENsdXN0ZXIgPSBkZXBsb3ltZW50Tm9kZSAiV2ViIFNlcnZlciBDbHVzdGVyIiAiQVdTIEVDMiIgewogICAgICAgICAgICAgICAgICAgIHdlYkFwcERlcGxveW1lbnQgPSBkZXBsb3ltZW50Tm9kZSAiRG9ja2VyIENvbnRhaW5lciAtIFdlYiIgewogICAgICAgICAgICAgICAgICAgICAgICB3ZWJBcHBJbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIHRpY2tldGluZ1N5c3RlbS53ZWJBcHAKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgYXBwRGVwbG95bWVudENsdXN0ZXIgPSBkZXBsb3ltZW50Tm9kZSAiQXBwbGljYXRpb24gU2VydmVyIENsdXN0ZXIiICJBV1MgRUMyIiB7CiAgICAgICAgICAgICAgICAgICAgYXV0aEFwcERlcGxveW1lbnQgPSBkZXBsb3ltZW50Tm9kZSAiRG9ja2VyIENvbnRhaW5lciAtIEF1dGgiIHsKICAgICAgICAgICAgICAgICAgICAgICAgYXV0aEFwcEluc3RhbmNlID0gY29udGFpbmVySW5zdGFuY2UgdGlja2V0aW5nU3lzdGVtLmF1dGhBcHAKICAgICAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgICAgIG9yZGVyQXBwRGVwbG95bWVudCA9IGRlcGxveW1lbnROb2RlICJEb2NrZXIgQ29udGFpbmVyIC0gT3JkZXIiIHsKICAgICAgICAgICAgICAgICAgICAgICAgb3JkZXJBcHBJbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIHRpY2tldGluZ1N5c3RlbS5vcmRlckFwcAogICAgICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICAgICAgc2VhcmNoQXBwRGVwbG95bWVudCA9IGRlcGxveW1lbnROb2RlICJEb2NrZXIgQ29udGFpbmVyIC0gU2VhcmNoIiB7CiAgICAgICAgICAgICAgICAgICAgICAgIHNlYXJjaEFwcEluc3RhbmNlID0gY29udGFpbmVySW5zdGFuY2UgdGlja2V0aW5nU3lzdGVtLnNlYXJjaEFwcAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiTWVzc2FnZSBRdWV1ZSBDbHVzdGVyIiAiQVdTIEVDMiIgewogICAgICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJEb2NrZXIgQ29udGFpbmVyIC0gUmFiYml0TVEiIHsKICAgICAgICAgICAgICAgICAgICAgICAgbWVzc2FnZUJ1c0luc3RhbmNlID0gY29udGFpbmVySW5zdGFuY2UgdGlja2V0aW5nU3lzdGVtLm1lc3NhZ2VCdXMKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkRhdGFiYXNlIENsdXN0ZXIiICJBV1MgUkRTIiB7CiAgICAgICAgICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkF1dGggRGF0YWJhc2UgUHJpbWFyeSIgIk15U1FMIFJEUyIgewogICAgICAgICAgICAgICAgICAgICAgICBhdXRoREJJbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIHRpY2tldGluZ1N5c3RlbS5hdXRoREIKICAgICAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJPcmRlciBEYXRhYmFzZSBQcmltYXJ5IiAiTXlTUUwgUkRTIiB7CiAgICAgICAgICAgICAgICAgICAgICAgIG9yZGVyREJJbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIHRpY2tldGluZ1N5c3RlbS5vcmRlckRCCiAgICAgICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiU2VhcmNoIERhdGFiYXNlIFByaW1hcnkiICJNeVNRTCBSRFMiIHsKICAgICAgICAgICAgICAgICAgICAgICAgc2VhcmNoREJJbnN0YW5jZSA9IGNvbnRhaW5lckluc3RhbmNlIHRpY2tldGluZ1N5c3RlbS5zZWFyY2hEQgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGxvYWRCYWxhbmNlckRlcGxveW1lbnQubG9hZEJhbGFuY2VySW5mcmFzdHJ1Y3R1cmUgLT4gd2ViQXBwRGVwbG95bWVudENsdXN0ZXIud2ViQXBwRGVwbG95bWVudC53ZWJBcHBJbnN0YW5jZSAiUm91dGVzIHRyYWZmaWMgdG8iICJIVFRQUyIKICAgICAgICAgICAgICAgIGxvYWRCYWxhbmNlckRlcGxveW1lbnQubG9hZEJhbGFuY2VySW5mcmFzdHJ1Y3R1cmUgLT4gYXBpR2F0ZXdheURlcGxveW1lbnQuYXBpR2F0ZXdheUluZnJhc3RydWN0dXJlICJSb3V0ZXMgdHJhZmZpYyB0byIgIkhUVFBTIgogICAgICAgICAgICAgICAgYXBpR2F0ZXdheURlcGxveW1lbnQuYXBpR2F0ZXdheUluZnJhc3RydWN0dXJlIC0+IGFwcERlcGxveW1lbnRDbHVzdGVyLmF1dGhBcHBEZXBsb3ltZW50LmF1dGhBcHBJbnN0YW5jZSAiRm9yIGF1dGhlbnRpY2F0aW9uIEFQSSBjYWxscyIKICAgICAgICAgICAgICAgIGFwaUdhdGV3YXlEZXBsb3ltZW50LmFwaUdhdGV3YXlJbmZyYXN0cnVjdHVyZSAtPiBhcHBEZXBsb3ltZW50Q2x1c3Rlci5vcmRlckFwcERlcGxveW1lbnQub3JkZXJBcHBJbnN0YW5jZSAiRm9yIG9yZGVyIEFQSSBjYWxscyIKICAgICAgICAgICAgICAgIGFwaUdhdGV3YXlEZXBsb3ltZW50LmFwaUdhdGV3YXlJbmZyYXN0cnVjdHVyZSAtPiBhcHBEZXBsb3ltZW50Q2x1c3Rlci5zZWFyY2hBcHBEZXBsb3ltZW50LnNlYXJjaEFwcEluc3RhbmNlICJGb3Igc2VhcmNoIEFQSSBjYWxscyIKICAgICAgICAgICAgfQogICAgICAgICAgICAKICAgICAgICB9CiAgICB9CgogICAgCgogICAgdmlld3MgewogICAgICAgIHN5c3RlbUNvbnRleHQgdGlja2V0aW5nU3lzdGVtICJTeXN0ZW1Db250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvbGF5b3V0IHRiCiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgdGlja2V0aW5nU3lzdGVtICJDb250YWluZXJzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvbGF5b3V0IHRiCiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgdGlja2V0aW5nU3lzdGVtLndlYkFwcCAiQ29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b2xheW91dCB0YgogICAgICAgIH0KCiAgICAgICAgZGVwbG95bWVudCB0aWNrZXRpbmdTeXN0ZW0gIlByb2R1Y3Rpb24iICJQcm9kdWN0aW9uRGVwbG95bWVudCIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b2xheW91dCB0YgogICAgICAgIH0KCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiUGVyc29uIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBwZXJzb24KICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzA4NDI3YgogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIlNvZnR3YXJlIFN5c3RlbSIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMTE2OGJkCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiRXh0ZXJuYWwgU3lzdGVtIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM5OTk5OTkKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJXZWIgQXBwIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBXZWJCcm93c2VyCiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJBcHAiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkRhdGFiYXNlIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBDeWxpbmRlcgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjNDM4ZGQ1CiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiUXVldWUiIHsKICAgICAgICAgICAgICAgIHNoYXBlIFBpcGUKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjODViYmYwCiAgICAgICAgICAgICAgICBjb2xvciAjMDAwMDAwCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9CgogICAgY29uZmlndXJhdGlvbiB7CiAgICAgICAgc2NvcGUgc29mdHdhcmVzeXN0ZW0KICAgIH0KfQ=="
+  },
+  "views" : {
+    "componentViews" : [ {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "6",
+      "dimensions" : {
+        "height" : 2000,
+        "width" : 2390
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 995,
+        "y" : 165
+      }, {
+        "id" : "3",
+        "x" : 1720,
+        "y" : 1465
+      }, {
+        "id" : "4",
+        "x" : 220,
+        "y" : 1465
+      }, {
+        "id" : "5",
+        "x" : 970,
+        "y" : 1465
+      }, {
+        "id" : "7",
+        "x" : 220,
+        "y" : 865
+      }, {
+        "id" : "8",
+        "x" : 970,
+        "y" : 865
+      }, {
+        "id" : "9",
+        "x" : 1720,
+        "y" : 865
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components",
+      "order" : 3,
+      "relationships" : [ {
+        "id" : "10"
+      }, {
+        "id" : "12"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "28"
+      }, {
+        "id" : "31"
+      }, {
+        "id" : "32"
+      } ]
+    } ],
+    "configuration" : {
+      "branding" : { },
+      "lastSavedView" : "SystemContext",
+      "metadataSymbols" : "SquareBrackets",
+      "styles" : {
+        "elements" : [ {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        }, {
+          "background" : "#999999",
+          "color" : "#ffffff",
+          "tag" : "External System"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "shape" : "WebBrowser",
+          "tag" : "Web App"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "App"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "shape" : "Pipe",
+          "tag" : "Queue"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 2620,
+        "width" : 4770
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 3957,
+        "y" : 1985
+      }, {
+        "id" : "3",
+        "x" : 2470,
+        "y" : 785
+      }, {
+        "id" : "4",
+        "x" : 970,
+        "y" : 785
+      }, {
+        "id" : "5",
+        "x" : 1720,
+        "y" : 785
+      }, {
+        "id" : "6",
+        "x" : 2095,
+        "y" : 185
+      }, {
+        "id" : "16",
+        "x" : 970,
+        "y" : 1385
+      }, {
+        "id" : "17",
+        "x" : 220,
+        "y" : 1385
+      }, {
+        "id" : "18",
+        "x" : 2470,
+        "y" : 1385
+      }, {
+        "id" : "19",
+        "x" : 1720,
+        "y" : 1385
+      }, {
+        "id" : "26",
+        "x" : 3220,
+        "y" : 1385
+      }, {
+        "id" : "27",
+        "x" : 3970,
+        "y" : 1385
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "11"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "15"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "22"
+      }, {
+        "id" : "23"
+      }, {
+        "id" : "24"
+      }, {
+        "id" : "25"
+      }, {
+        "id" : "29",
+        "vertices" : [ {
+          "x" : 4570,
+          "y" : 1789
+        }, {
+          "x" : 4570,
+          "y" : 1385
+        } ]
+      }, {
+        "id" : "33"
+      }, {
+        "id" : "35"
+      }, {
+        "id" : "37"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "deploymentViews" : [ {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 3159,
+        "width" : 3466
+      },
+      "elements" : [ {
+        "id" : "38",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "39",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "40",
+        "x" : 1505,
+        "y" : 205
+      }, {
+        "id" : "41",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "42",
+        "x" : 1072,
+        "y" : 851
+      }, {
+        "id" : "43",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "44",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "45",
+        "x" : 1938,
+        "y" : 851
+      }, {
+        "id" : "46",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "47",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "48",
+        "x" : 1505,
+        "y" : 1601
+      }, {
+        "id" : "50",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "51",
+        "x" : 742,
+        "y" : 1601
+      }, {
+        "id" : "53",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "54",
+        "x" : 2267,
+        "y" : 1601
+      }, {
+        "id" : "56",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "57",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "58",
+        "x" : 259,
+        "y" : 2351
+      }, {
+        "id" : "62",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "63",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "64",
+        "x" : 1992,
+        "y" : 2351
+      }, {
+        "id" : "66",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "67",
+        "x" : 1230,
+        "y" : 2351
+      }, {
+        "id" : "69",
+        "x" : 175,
+        "y" : 175
+      }, {
+        "id" : "70",
+        "x" : 2755,
+        "y" : 2351
+      } ],
+      "environment" : "Production",
+      "key" : "ProductionDeployment",
+      "order" : 4,
+      "relationships" : [ {
+        "id" : "49"
+      }, {
+        "id" : "52",
+        "vertices" : [ {
+          "x" : 1701,
+          "y" : 1359
+        }, {
+          "x" : 1326,
+          "y" : 1392
+        } ]
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "59",
+        "vertices" : [ {
+          "x" : 1372,
+          "y" : 2109
+        }, {
+          "x" : 1051,
+          "y" : 2142
+        } ]
+      }, {
+        "id" : "60",
+        "vertices" : [ {
+          "x" : 2134,
+          "y" : 2109
+        }, {
+          "x" : 1051,
+          "y" : 2142
+        } ]
+      }, {
+        "id" : "61"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "72"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "76",
+        "vertices" : [ {
+          "x" : 1759,
+          "y" : 1359
+        }, {
+          "x" : 2134,
+          "y" : 1392
+        } ]
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 2000,
+        "width" : 1600
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 563,
+        "y" : 165
+      }, {
+        "id" : "2",
+        "x" : 879,
+        "y" : 865
+      }, {
+        "id" : "26",
+        "x" : 200,
+        "y" : 1465
+      }, {
+        "id" : "27",
+        "x" : 950,
+        "y" : 1465
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "30"
+      }, {
+        "id" : "34"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "37"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
+  }
+}

@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-ingress
+  annotations:
+    konghq.com/plugins: order-key-auth, order-rate-limiting
+spec:
+  ingressClassName: kong
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: order
+            port:
+              number: 5004
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: order-rate-limiting
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/consumer: frontend-consumer
+config:
+  minute: 5
+  policy: local
+  fault_tolerant: true
+  hide_client_headers: false
+plugin: rate-limiting
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: order-key-auth
+plugin: key-auth
+config:
+  key_names:
+  - apikey
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: frontend-key
+  labels:
+    konghq.com/credential: key-auth
+stringData:
+  key: test-key
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: frontend-consumer
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: frontend-user
+credentials:
+- frontend-key

@@ -354,3 +354,18 @@ data:
         '2023-03-27 21:35:00',
         30000
     );
+
+    INSERT INTO ticket (
+        user_id,
+        seat_id,
+        trip_station_start_id,
+        trip_station_end_id,
+        token
+    )
+    VALUES (
+        (SELECT id FROM user WHERE name = 'Oleksii'),
+        (SELECT id FROM seat WHERE num = 1 AND carriage_id = (SELECT id FROM carriage WHERE train_id = (SELECT id FROM train WHERE name = '100T') AND num = 1)),
+        (SELECT id FROM trip_station WHERE trip_id = (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '100T')) AND station_id = (SELECT id FROM station WHERE name = 'Kyiv')),
+        (SELECT id FROM trip_station WHERE trip_id = (SELECT id FROM trip WHERE train_id = (SELECT id FROM train WHERE name = '100T')) AND station_id = (SELECT id FROM station WHERE name = 'Dnipro')),
+        'token1'
+    );

@@ -1,0 +1,12 @@
+@startuml TrainTicketingSystem
+actor Customer
+artifact "Search Trains" as search
+artifact "Select Ticket" as select
+artifact "Make Payment" as payment
+artifact "Receive Confirmation" as confirm
+
+Customer -> search : 1
+Customer -> select : 2
+Customer -> payment : 3
+payment -> confirm : 4
+@enduml

@@ -6,3 +6,5 @@ minikube service order --url
 
 kubectl apply -f secret.yaml
 kubectl apply -f order.yaml
+kubectl apply -f kong.yaml
+kubectl apply -f redis.yaml

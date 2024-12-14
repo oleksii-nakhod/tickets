@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
+import time
 from waitress import serve
 import requests
 import logging
@@ -20,6 +21,8 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 app = Flask(__name__)
 
+
+
 @app.route("/orders", methods=["GET"])
 def orders():
     user = request.args.get('user')
@@ -33,12 +36,15 @@ def orders():
             f"{database_service_base_url}/tickets/{ticket['id']}/info",
             params={"user": user}
         ).json()
+        logger.info(ticket_info)
         trip_station_start = requests.get(
-            f"{database_service_base_url}/trip-stations/{ticket_info['trip_station_start']}"
+            f"{database_service_base_url}/trip-stations/{ticket_info['trip_station_start_id']}"
         ).json()
+        logger.info(trip_station_start)
         trip_station_end = requests.get(
-            f"{database_service_base_url}/trip-stations/{ticket_info['trip_station_end']}"
+            f"{database_service_base_url}/trip-stations/{ticket_info['trip_station_end_id']}"
         ).json()
+        logger.info(trip_station_end)
         station_start = requests.get(
             f"{database_service_base_url}/stations/{trip_station_start['station_id']}"
         ).json()
@@ -51,6 +57,7 @@ def orders():
             'station_end_name': station_end['name'],
             'time_dep': trip_station_start['time_dep']
         })
+    logger.info(data)
     return data
 
 @app.route("/orders", methods=["POST"])

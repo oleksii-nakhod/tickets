@@ -1,0 +1,1 @@
+docker run -it --rm -p 9090:8080 -v C:/Users/Oleksii/OneDrive/Code/tickets/structurizr:/usr/local/structurizr structurizr/lite
